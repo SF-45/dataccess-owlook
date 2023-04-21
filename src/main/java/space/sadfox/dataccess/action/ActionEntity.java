@@ -8,6 +8,7 @@ import jakarta.xml.bind.annotation.XmlAccessType;
 import jakarta.xml.bind.annotation.XmlAccessorType;
 import jakarta.xml.bind.annotation.XmlAttribute;
 import jakarta.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 import jakarta.xml.bind.annotation.XmlType;
 import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import javafx.beans.property.SimpleStringProperty;
@@ -21,7 +22,7 @@ import space.sadfox.owlook.jaxb.PreLoadAction;
 import space.sadfox.owlook.moduleapi.ChangeHistoryKeeping;
 
 @XmlAccessorType(XmlAccessType.NONE)
-@XmlType
+@XmlRootElement
 public class ActionEntity extends JAXBEntity {
 	
 	private StringProperty title = new SimpleStringProperty();

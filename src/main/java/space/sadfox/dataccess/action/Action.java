@@ -4,7 +4,8 @@ import space.sadfox.dataccess.dataccess.DataEntity;
 import space.sadfox.owlook.ui.base.Controller;
 
 public interface Action {
-	void execCommand(DataEntity ...dataEntities);
+	void run(DataEntity ...dataEntities);
 	Controller getConfigController();
 	ActionEntity getActionEntity();
+	ActionApi getActionProvider();
 }

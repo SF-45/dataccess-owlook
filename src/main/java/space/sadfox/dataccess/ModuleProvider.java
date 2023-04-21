@@ -1,32 +1,25 @@
 package space.sadfox.dataccess;
 
-import space.sadfox.owlook.jaxb.JAXBEntity;
-import space.sadfox.owlook.moduleapi.ModuleBac;
+import space.sadfox.owlook.moduleapi.Module;
 
-public class ModuleProvider implements ModuleBac {
+public class ModuleProvider implements Module {
 
 	@Override
-	public String getName() {
+	public String getModuleName() {
+		// TODO Auto-generated method stub
+		return "dataccess";
+	}
+
+	@Override
+	public String getModuleDescription() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public String getDescription() {
+	public String getModuleVersion() {
 		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public String getVersion() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Class<? extends JAXBEntity> getEntityClass() {
-		// TODO Auto-generated method stub
-		return null;
+		return "0.6.0";
 	}
 
 }
