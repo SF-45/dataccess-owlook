@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import jakarta.xml.bind.JAXBException;
+import space.sadfox.dataccess.dataccess.TableData;
 import space.sadfox.owlook.jaxb.EntityLoader;
 import space.sadfox.owlook.utils.ErrorLogger;
 import space.sadfox.owlook.utils.ModuleLoader;
@@ -12,26 +13,28 @@ import space.sadfox.owlook.utils.ModuleLoader;
 public class ActionEntityDao {
 	
 	private ActionEntity actionEntity;
+	private TableData tableData;
 	private static EntityLoader loader;
 	
 	static {
 		loader = new EntityLoader();
 	}
 
-	public ActionEntityDao(ActionEntity actionEntity) {
+	public ActionEntityDao(ActionEntity actionEntity, TableData tableData) {
 		this.actionEntity = actionEntity;
+		this.tableData = tableData;
 	}
 	
 	public Action createAction() {
-		for (ActionApi ap : getActionProviders()) {
+		for (ActionProvider ap : getActionProviders()) {
 			if (ap.getIdentifier().equals(actionEntity.getActionProvider())) {
-				return ap.createAction(actionEntity);
+				return ap.createAction(actionEntity, tableData);
 			}
 		}
 		return null;
 	}
 	
-	public static ActionEntity createActionEntity(String fileName, ActionApi provider) {
+	public static ActionEntity createActionEntity(String fileName, ActionProvider provider) {
 		try {
 			ActionEntity actionEntity = loader.createEntity(fileName, ActionEntity.class);
 			actionEntity.setActionProvider(provider.getIdentifier());
@@ -42,10 +45,10 @@ public class ActionEntityDao {
 		return null;
 	}
 	
-	public static List<ActionApi> getActionProviders() {
+	public static List<ActionProvider> getActionProviders() {
 		return ModuleLoader.INSTANCE.loadModuleExtension().stream()
-				.filter(me -> me instanceof ActionApi)
-				.map(aa -> (ActionApi) aa)
+				.filter(me -> me instanceof ActionProvider)
+				.map(aa -> (ActionProvider) aa)
 				.collect(Collectors.toList());
 		
 	}

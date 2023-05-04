@@ -16,6 +16,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import jakarta.xml.bind.JAXBException;
+import javafx.beans.property.StringProperty;
 import space.sadfox.dataccess.dataccess.DataEntity;
 import space.sadfox.dataccess.dataccess.Field;
 import space.sadfox.dataccess.dataccess.ParserFilter;
@@ -63,8 +64,8 @@ public class XMLParser {
             boolean ind = false;
             switch (parserProperty.getComparison()) {
                 case EQUAL:
-                    for (String str : parserProperty.getValue()) {
-                        if (attrValue.equalsIgnoreCase(str)) {
+                    for (StringProperty str : parserProperty.getValue()) {
+                        if (attrValue.equalsIgnoreCase(str.get())) {
                             ind = true;
                             break;
                         }
@@ -72,8 +73,8 @@ public class XMLParser {
                     if (!ind) return false;
                     break;
                 case NOT_EQUAL:
-                    for (String str : parserProperty.getValue()) {
-                        if (attrValue.equalsIgnoreCase(str)) {
+                    for (StringProperty str : parserProperty.getValue()) {
+                        if (attrValue.equalsIgnoreCase(str.get())) {
                             ind = true;
                             break;
                         }
@@ -81,8 +82,8 @@ public class XMLParser {
                     if (ind) return false;
                     break;
                 case LIKE:
-                    for (String str : parserProperty.getValue()) {
-                        if (attrValue.toLowerCase().contains(str.toLowerCase())) {
+                    for (StringProperty str : parserProperty.getValue()) {
+                        if (attrValue.toLowerCase().contains(str.get().toLowerCase())) {
                             ind = true;
                             break;
                         }

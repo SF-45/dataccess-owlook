@@ -13,9 +13,7 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.scene.Node;
 import space.sadfox.owlook.jaxb.JAXBEntity;
-import space.sadfox.owlook.jaxb.PreLoadAction;
 
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlRootElement
@@ -58,15 +56,14 @@ public class TableDataView extends JAXBEntity {
 	}
 
 	@Override
-	public Node getSimpleConfigNode() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public PreLoadAction getPreLoadAction() {
-		return null;
+	public void initialize() {
+		
 	}
 	
+	@Override
+	public boolean validate() {
+		return true;
+	}
+
 
 }

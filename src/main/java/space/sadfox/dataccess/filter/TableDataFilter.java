@@ -1,6 +1,5 @@
 package space.sadfox.dataccess.filter;
 
-
 import java.util.Arrays;
 import java.util.List;
 
@@ -14,15 +13,13 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.scene.Node;
 import space.sadfox.owlook.jaxb.JAXBEntity;
-import space.sadfox.owlook.jaxb.PreLoadAction;
 import space.sadfox.owlook.moduleapi.ChangeHistoryKeeping;
 
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlRootElement
 public class TableDataFilter extends JAXBEntity implements ChangeHistoryKeeping {
-	
+
 	private StringProperty title = new SimpleStringProperty("");
 	private ObservableList<Filter> filters = FXCollections.observableArrayList();
 
@@ -31,43 +28,44 @@ public class TableDataFilter extends JAXBEntity implements ChangeHistoryKeeping 
 	public List<Filter> getFilters() {
 		return filters;
 	}
+
 	public ObservableList<Filter> filtersProperty() {
 		return filters;
 	}
-	
+
 	@XmlAttribute(name = "title")
 	@Override
 	public String getTitle() {
 		return title.get();
 	}
-	
+
 	public void setTitle(String name) {
 		this.title.set(name);
 	}
-	
+
 	public StringProperty titleProperty() {
 		return title;
 	}
-	
+
 	@Override
 	public List<Object> getProperties() {
 		return Arrays.asList(filters, title);
 	}
+
 	@Override
 	public String getExtension() {
 		return ".tdatafilter";
 	}
+
 	@Override
-	public Node getSimpleConfigNode() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	@Override
-	public PreLoadAction getPreLoadAction() {
-		return null;
+	public void initialize() {
+
 	}
 	
-	
-	
-	
+	@Override
+	public boolean validate() {
+		return true;
+	}
+
+
 }

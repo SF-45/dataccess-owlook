@@ -54,8 +54,9 @@ public class Field implements ChangeHistoryKeeping {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (obj instanceof String) {
-			return fieldName.equals(obj);
+		if (obj instanceof Field) {
+			Field eq = (Field) obj;
+			return getFieldName().equals(eq.getFieldName());
 		} else {
 			return false;
 		}

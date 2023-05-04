@@ -15,9 +15,7 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.scene.Node;
 import space.sadfox.owlook.jaxb.JAXBEntity;
-import space.sadfox.owlook.jaxb.PreLoadAction;
 
 
 @XmlAccessorType(XmlAccessType.NONE)
@@ -104,23 +102,33 @@ public class TableData extends JAXBEntity {
 		return ".tdata";
 	}
 
-	@Override
-	public Node getSimpleConfigNode() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+//	@Override
+//	public PreLoadAction getPreLoadAction() {
+//		return (entity) -> {
+//			if (entity instanceof TableData) {
+//				TableData tData = (TableData) entity;
+//				if (tData.getAutoUpdate()) {
+//					new TableDataDao(tData).loadData();
+//				}
+//			}
+//		};
+//	} TODO: Удалить потом
 
 	@Override
-	public PreLoadAction getPreLoadAction() {
-		return (entity) -> {
-			if (entity instanceof TableData) {
-				TableData tData = (TableData) entity;
-				if (tData.getAutoUpdate()) {
-					new TableDataDao(tData).loadData();
-				}
-			}
-		};
+	public void initialize() {
+		if (getAutoUpdate()) {
+			new TableDataDao(this).loadData();
+		}
+		
 	}
+	
+	@Override
+	public boolean validate() {
+		return true;
+	}
+
+	
+	
 	
 	
     

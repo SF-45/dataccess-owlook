@@ -5,24 +5,26 @@ import java.util.List;
 
 import jakarta.xml.bind.annotation.XmlAttribute;
 import jakarta.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import space.sadfox.owlook.jaxb.adapters.StringPropertyAdapter;
 import space.sadfox.owlook.moduleapi.ChangeHistoryKeeping;
 
 public class ParserFilter implements ChangeHistoryKeeping {
 
     private StringProperty attr = new SimpleStringProperty();
     private ObjectProperty<Comparison> comparison = new SimpleObjectProperty<>();
-    private ObservableList<String> value = FXCollections.observableArrayList();
+    private ObservableList<StringProperty> value = FXCollections.observableArrayList();
 
     public ParserFilter(String attr, Comparison comparison, String ... value) {
         this.attr.set(attr);
         this.comparison.set(comparison);
-        this.value.addAll(value);
+        Arrays.stream(value).forEach(v -> this.value.add(new SimpleStringProperty(v)));
     }
 
     public ParserFilter() {
@@ -54,9 +56,14 @@ public class ParserFilter implements ChangeHistoryKeeping {
 		return comparison;
 	}
 
+    @XmlJavaTypeAdapter(StringPropertyAdapter.class)
     @XmlElement(name = "Value")
-    public List<String> getValue() {
+    public List<StringProperty> getValue() {
         return value;
+    }
+    
+    public ObservableList<StringProperty> valueProperty() {
+    	return value;
     }
 
 	@Override
