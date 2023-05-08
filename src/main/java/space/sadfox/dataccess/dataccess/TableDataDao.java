@@ -1,6 +1,5 @@
 package space.sadfox.dataccess.dataccess;
 
-import java.io.IOException;
 import java.nio.file.Path;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -10,11 +9,11 @@ import java.util.List;
 
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.xml.sax.SAXException;
-
-import jakarta.xml.bind.JAXBException;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 import space.sadfox.dataccess.dataccess.core.DBHandler;
-import space.sadfox.dataccess.dataccess.core.XMLParser;
+import space.sadfox.owlook.utils.ErrorLogger;
+import space.sadfox.owlook.utils.ModuleLoader;
 
 public class TableDataDao {
 
@@ -31,30 +30,28 @@ public class TableDataDao {
 	}
 
 	public DataEntity createDataEntity() {
-		return new DataEntity(tData.getFields());
+		return new DataEntity(getTableData().getFields());
 	}
 
 	public void loadData() {
 		try (DBHandler handler = new DBHandler(dataBasePath)) {
 			Statement statement = handler.getStatement();
 			createNewTable(statement);
-			XMLParser parser = new XMLParser(Path.of(tData.getPathToData()));
-			List<DataEntity> data = parser.parse(tData);
+			ParserProvider parser = getParserProvider();
+			if (parser  == null) throw new ParserConfigurationException("Parser provider not found");
+			List<DataEntity> data = parser.parse(getTableData());
 
 			for (DataEntity entity : data) {
-				insertDataEntity(entity, statement);
+				try {
+					insertDataEntity(entity, statement);
+				} catch (SQLException e) {
+					ErrorLogger.registerException(e);
+				}
+				
 			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (SAXException e) {
-			e.printStackTrace();
-		} catch (ParserConfigurationException e) {
-			e.printStackTrace();
-		} catch (JAXBException e) {
-			e.printStackTrace();
-		} catch (SQLException e1) {
-			e1.printStackTrace();
-		}
+		} catch (SQLException | ParserConfigurationException e) {
+			ErrorLogger.registerException(e);
+		} 
 
 	}
 
@@ -62,7 +59,7 @@ public class TableDataDao {
 		StringBuilder sql = new StringBuilder("INSERT INTO " + tableName);
 		List<String> fields = new ArrayList<>();
 		List<String> values = new ArrayList<>();
-		tData.getFields().forEach(field -> {
+		getTableData().getFields().forEach(field -> {
 			fields.add(field.getFieldName());
 			values.add("'" + dataEntity.getValue(field) + "'");
 		});
@@ -78,9 +75,9 @@ public class TableDataDao {
 	private void createNewTable(Statement statement) throws SQLException {
 		StringBuilder sql = new StringBuilder();
 
-		String dataType = " VARCHAR (50)";
+		String dataType = " VARCHAR (100)";
 		List<String> fields = new ArrayList<>();
-		tData.getFields().forEach(field -> {
+		getTableData().getFields().forEach(field -> {
 			fields.add(field.getFieldName());
 		});
 
@@ -98,14 +95,8 @@ public class TableDataDao {
 
 	public Field addNewField() {
 		Field field = new Field();
-		tData.getFields().add(field);
+		getTableData().getFields().add(field);
 		return field;
-	}
-
-	public ParserFilter addNewPreFilter() {
-		ParserFilter filter = new ParserFilter();
-		tData.getPrefilters().add(filter);
-		return filter;
 	}
 
 	public DataEntity[] selectAll() {
@@ -135,9 +126,26 @@ public class TableDataDao {
 			}
 			return entities.toArray(new DataEntity[0]);
 		} catch (SQLException e) {
-			e.printStackTrace();
+			ErrorLogger.registerException(e);
 		}
 		return new DataEntity[0];
+	}
+	
+	public ParserProvider getParserProvider() {
+		for (ParserProvider p : getParserProviders()) {
+			if (getTableData().getParser().equals(p.getIdentifier())) {
+				return p;
+			}
+		}
+		return null;
+	}
+	
+	public static List<ParserProvider> getParserProviders() {
+		return ModuleLoader.INSTANCE.loadModuleExtension(ParserProvider.class, m -> m instanceof ParserProvider);
+	}
+
+	public TableData getTableData() {
+		return tData;
 	}
 
 }

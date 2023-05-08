@@ -9,6 +9,7 @@ import jakarta.xml.bind.annotation.XmlAttribute;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlElementWrapper;
 import jakarta.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -16,85 +17,107 @@ import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import space.sadfox.owlook.jaxb.JAXBEntity;
+import space.sadfox.owlook.jaxb.adapters.StringPropertyAdapter;
 
 
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlRootElement
 public class TableData extends JAXBEntity {
 	
-	private StringProperty title = new SimpleStringProperty();
+	private StringProperty title;
 
-    private StringProperty pathToData = new SimpleStringProperty("");
+    private StringProperty pathToData;
     
-    private BooleanProperty autoUpdate = new SimpleBooleanProperty(false);
-
-    private ObservableList<Field> fields = FXCollections.observableArrayList();
+    private BooleanProperty autoUpdate;
     
-    private ObservableList<ParserFilter> prefilters = FXCollections.observableArrayList();
-
+    private StringProperty parser;
+    
+    private ObservableList<Field> fields;
+    
 	@Override
-	@XmlAttribute
+	@XmlAttribute(name = "title")
 	public String getTitle() {
-		return title.get();
+		return titleProperty().get();
 	}
 
 	public void setTitle(String tableName) {
-		this.title.set(tableName);
+		titleProperty().set(tableName);
 	}
 	
 	public StringProperty titleProperty() {
+		if (title == null) {
+			title = new SimpleStringProperty();
+		}
 		return title;
 	}
+	
+	@XmlAttribute(name = "parser")
+	public String getParser() {
+		return parserProperty().get();
+	}
+	
+	public void setParser(String parser) {
+		parserProperty().set(parser);
+	}
+	
+	public StringProperty parserProperty() {
+		if (parser == null) {
+			parser = new SimpleStringProperty();
+		}
+		return parser;
+	}
 
-	@XmlElementWrapper(name = "Prefilters")
-	@XmlElement(name = "Prefilter")
-	public List<ParserFilter> getPrefilters() {
-		return prefilters;
-	}
-	
-	public ObservableList<ParserFilter> prefiltersProperty() {
-		return prefilters;
-	}
-	
-	@XmlAttribute(name = "PathToData")
+	@XmlAttribute(name = "pathToData")
 	public String getPathToData() {
-		return pathToData.get();
+		return pathToDataProperty().get();
 	}
 
 	public void setPathToData(String pathToData) {
-		this.pathToData.set(pathToData);
+		pathToDataProperty().set(pathToData);
 	}
 	
 	public StringProperty pathToDataProperty() {
+		if (pathToData == null) {
+			pathToData = new SimpleStringProperty();
+		}
 		return pathToData;
 	}
 	
-	@XmlAttribute(name = "AutoUpdate")
+	@XmlAttribute(name = "autoUpdate")
 	public Boolean getAutoUpdate() {
-		return autoUpdate.get();
+		return autoUpdateProperty().get();
 	}
 
 	public void setAutoUpdate(Boolean autoUpdate) {
-		this.autoUpdate.set(autoUpdate);
+		autoUpdateProperty().set(autoUpdate);
 	}
 	
 	public BooleanProperty autoUpdateProperty() {
+		if (autoUpdate == null) {
+			autoUpdate = new SimpleBooleanProperty(false);
+		}
 		return autoUpdate;
 	}
 
-	@XmlElementWrapper(name = "Fields")
-	@XmlElement(name = "Field")
+	@XmlElementWrapper(name = "fields")
+	@XmlElement(name = "field")
 	public List<Field> getFields() {
-		return fields;
+		return fieldsProperty();
 	}
 	
 	public ObservableList<Field> fieldsProperty() {
+		if (fields == null) {
+			fields = FXCollections.observableArrayList();
+		}
 		return fields;
 	}
 
 	@Override
 	public List<Object> getProperties() {
-		return Arrays.asList(title, pathToData, autoUpdate, fields, prefilters);
+		return Arrays.asList(titleProperty(),
+				pathToDataProperty(),
+				autoUpdateProperty(),
+				fieldsProperty());
 	}
 
 	@Override

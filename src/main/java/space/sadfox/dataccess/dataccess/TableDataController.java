@@ -10,25 +10,24 @@ import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
+import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SelectionMode;
-import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
-import javafx.scene.control.TreeTableColumn;
-import javafx.scene.control.TreeTableView;
 import javafx.scene.control.cell.ComboBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.input.KeyEvent;
+import javafx.util.StringConverter;
 import space.sadfox.dataccess.ResourceTarget;
-import space.sadfox.dataccess.filter.Filter;
 import space.sadfox.owlook.ui.base.Controller;
 
 public class TableDataController extends Controller {
@@ -37,16 +36,19 @@ public class TableDataController extends Controller {
 	private CheckBox autoUpdate;
 
 	@FXML
+	private Button configParser;
+
+	@FXML
 	private TableView<Field> fieldsTable;
 
 	@FXML
+	private ChoiceBox<ParserProvider> parserChoiseBox;
+
+	@FXML
+	private TableView<ParserFilter> parserFilterTable;
+
+	@FXML
 	private TextField pathToDataTextField;
-
-	@FXML
-	private TableView<StringProperty> prefilterValues;
-
-	@FXML
-	private TableView<ParserFilter> prefiltersTable;
 
 	@FXML
 	private Button selectPath;
@@ -59,16 +61,52 @@ public class TableDataController extends Controller {
 
 		this.tableData = tableData;
 
-		autoUpdate.setSelected(tableData.getAutoUpdate());
-		autoUpdate.selectedProperty().bindBidirectional(tableData.autoUpdateProperty());
+		init();
+		initFieldsTable();
+		initParserFilterTable();
 
-		pathToDataTextField.setText(tableData.getPathToData());
-		pathToDataTextField.textProperty().bindBidirectional(tableData.pathToDataProperty());
+		fieldsTable.setItems(getTableData().fieldsProperty());
+		parserChoiseBox.setItems(FXCollections.observableList(getTableDataDao().getParserProviders()));
+		if (parserChoiseBox.getItems().size() > 0) {
+			parserChoiseBox.getSelectionModel().select(0);
+		}
 
-		// ==================================================================
-		// Init TableView for fields
-		// ==================================================================
+	}
 
+	private void init() {
+		autoUpdate.setSelected(getTableData().getAutoUpdate());
+		autoUpdate.selectedProperty().bindBidirectional(getTableData().autoUpdateProperty());
+
+		pathToDataTextField.setText(getTableData().getPathToData());
+		pathToDataTextField.textProperty().bindBidirectional(getTableData().pathToDataProperty());
+
+		parserChoiseBox.setConverter(new StringConverter<ParserProvider>() {
+
+			@Override
+			public String toString(ParserProvider object) {
+				if (object == null)
+					return "Not found";
+				return object.getModuleExtensionName();
+			}
+
+			@Override
+			public ParserProvider fromString(String string) {
+				// TODO Auto-generated method stub
+				return null;
+			}
+
+		});
+		parserChoiseBox.getSelectionModel().selectedItemProperty().addListener((property, oldValue, newValue) -> {
+			if (oldValue == newValue)
+				return;
+			getTableData().setParser(newValue.getIdentifier());
+		});
+
+		configParser.setOnAction(
+				event -> parserChoiseBox.getSelectionModel().getSelectedItem().getConfigController(getTableData()).show());
+	}
+
+	private void initFieldsTable() {
 		fieldsTable.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
 
 		TableColumn<Field, String> fieldName = new TableColumn<>("Field");
@@ -79,15 +117,6 @@ public class TableDataController extends Controller {
 			editEvent.getRowValue().setFieldName(editEvent.getNewValue());
 		});
 		fieldsTable.getColumns().add(fieldName);
-
-		TableColumn<Field, String> parseAssociation = new TableColumn<>("Parse Association");
-		parseAssociation.setEditable(true);
-		parseAssociation.setCellValueFactory(new PropertyValueFactory<>("parseAssociation"));
-		parseAssociation.setCellFactory(TextFieldTableCell.forTableColumn());
-		parseAssociation.setOnEditCommit(editEvent -> {
-			editEvent.getRowValue().setParseAssociation(editEvent.getNewValue());
-		});
-		fieldsTable.getColumns().add(parseAssociation);
 
 		ObjectProperty<Field> draggedField = new SimpleObjectProperty<>();
 		IntegerProperty draggedInd = new SimpleIntegerProperty();
@@ -115,6 +144,38 @@ public class TableDataController extends Controller {
 
 			return row;
 		});
+		
+		fieldsTable.getSelectionModel().selectedItemProperty().addListener((property, oldValue, newValue) -> {
+			parserFilterTable.setItems(newValue.parserFiltersProperty());
+		});
+
+		// ==================================================================
+		// Context Menu
+		// ==================================================================
+
+		ContextMenu fieldTableContextMenu = new ContextMenu();
+		fieldsTable.setContextMenu(fieldTableContextMenu);
+
+		MenuItem addField = new MenuItem("New Field");
+		addField.setOnAction(event -> {
+			Field newField = getTableDataDao().addNewField();
+			newField.setFieldName("newField");
+		});
+		fieldTableContextMenu.getItems().add(addField);
+
+		MenuItem removeField = new MenuItem("Remove");
+		fieldsTable.getSelectionModel().getSelectedItems().addListener((InvalidationListener) change -> {
+			removeField.setVisible(!fieldsTable.getSelectionModel().isEmpty());
+		});
+
+		removeField.setOnAction(event -> {
+			removeField(fieldsTable.getSelectionModel().getSelectedItems());
+		});
+		fieldTableContextMenu.getItems().add(removeField);
+
+		// ==================================================================
+		// Key bindings
+		// ==================================================================
 
 		fieldsTable.addEventHandler(KeyEvent.KEY_PRESSED, keyEvent -> {
 			switch (keyEvent.getCode()) {
@@ -123,161 +184,78 @@ public class TableDataController extends Controller {
 				if (!selection.isEmpty()) {
 					// var item = selection.getSelectedItem();
 					// tableData.getFields().remove(item);
-					selection.getSelectedItems().forEach(i -> tableData.getFields().remove(i));
-					removeAction(selection.getSelectedItems());
+					//selection.getSelectedItems().forEach(i -> getTableData().getFields().remove(i));
+					removeField(selection.getSelectedItems());
 				}
+				break;
+			default:
 				break;
 			}
 		});
+	}
 
-		// ==================================================================
-		// Context Menu
-		// ==================================================================
-
-		// ============ Field Table =================
-		ContextMenu fieldTableContextMenu = new ContextMenu();
-		fieldsTable.setContextMenu(fieldTableContextMenu);
-
-		MenuItem addField = new MenuItem("New Field");
-		addField.setOnAction(event -> {
-			Field newField = getTableDataDao().addNewField();
-			newField.setFieldName("fieldName");
-			newField.setParseAssociation("Assoc");
-		});
-		fieldTableContextMenu.getItems().add(addField);
-		
-		MenuItem removeField = new MenuItem("Remove");
-		fieldsTable.getSelectionModel().getSelectedItems().addListener((InvalidationListener) change -> {
-			removeField.setVisible(!fieldsTable.getSelectionModel().isEmpty());
-		});
-		
-		removeField.setOnAction(event -> {
-			removeAction(fieldsTable.getSelectionModel().getSelectedItems());
-		});
-		fieldTableContextMenu.getItems().add(removeField);
-
-		// ============ Prefilter Table =================
-
-		ContextMenu prefiltersContextMenu = new ContextMenu();
-		prefiltersTable.setContextMenu(prefiltersContextMenu);
-
-		MenuItem create = new MenuItem("New Prefilter");
-		create.setOnAction(event -> {
-			getTableDataDao().addNewPreFilter().setComparison(Comparison.EQUAL);
-		});
-		prefiltersContextMenu.getItems().add(create);
-		
-		MenuItem removePrefilter = new MenuItem("Remove");
-		prefiltersTable.getSelectionModel().getSelectedItems().addListener((InvalidationListener) change -> {
-			removePrefilter.setVisible(!prefiltersTable.getSelectionModel().isEmpty());
-		});
-		removePrefilter.setOnAction(event -> {
-			removeAction(prefiltersTable.getSelectionModel().getSelectedItem());
-		});
-		prefiltersContextMenu.getItems().add(removePrefilter);
-				
-		// ============ Prefilter Value Table =================
-
-		ContextMenu prefilterValuesContextMenu = new ContextMenu();
-		prefilterValues.setContextMenu(prefilterValuesContextMenu);
-
-		MenuItem createValue = new MenuItem("New Value");
-		createValue.setOnAction(event -> {
-			prefiltersTable.getSelectionModel().getSelectedItem().getValue().add(new SimpleStringProperty("val"));
-		});
-		prefilterValuesContextMenu.getItems().add(createValue);
-		
-		
-
-		// ==================================================================
-		// Init TreeTableView for prefilters
-		// ==================================================================
-
-		TableColumn<ParserFilter, String> attr = new TableColumn<>("Attribute");
-		attr.setEditable(true);
-		attr.setCellValueFactory(new PropertyValueFactory<>("attr"));
-		attr.setCellFactory(TextFieldTableCell.forTableColumn());
-		attr.setOnEditCommit(editEvent -> {
-			editEvent.getRowValue().setAttr(editEvent.getNewValue());
-		});
-		prefiltersTable.getColumns().add(attr);
-
+	private void initParserFilterTable() {
 		TableColumn<ParserFilter, Comparison> comparison = new TableColumn<>("Comparison");
 		comparison.setEditable(true);
 		comparison.setCellValueFactory(new PropertyValueFactory<>("comparison"));
 		comparison.setCellFactory(ComboBoxTableCell.forTableColumn(Comparison.values()));
-		comparison.setOnEditCommit(event -> {
-			event.getRowValue().setComparison(event.getNewValue());
+		comparison.setOnEditCommit(editEvent -> {
+			editEvent.getRowValue().setComparison(editEvent.getNewValue());
 		});
-		prefiltersTable.getColumns().add(comparison);
-
-		ObjectProperty<ParserFilter> draggedPrefill = new SimpleObjectProperty<>();
-		IntegerProperty draggedIndPrefill = new SimpleIntegerProperty();
-
-		prefiltersTable.setRowFactory(call -> {
-			TableRow<ParserFilter> row = new TableRow<>();
-
-			row.setOnDragDetected(dragEvent -> {
-				draggedPrefill.set(row.getItem());
-				draggedIndPrefill.set(row.getIndex());
-				row.startFullDrag();
-				dragEvent.consume();
-			});
-			row.setOnMouseDragOver(dragEvent -> {
-				if (draggedIndPrefill.get() == row.getIndex() || draggedPrefill.get() == null || row.getItem() == null)
-					return;
-				int tempInd = row.getIndex();
-				prefiltersTable.getItems().remove(draggedPrefill.get());
-				prefiltersTable.getItems().add(tempInd, draggedPrefill.get());
-				prefiltersTable.getSelectionModel().clearSelection();
-				prefiltersTable.getSelectionModel().select(tempInd);
-				draggedIndPrefill.set(tempInd);
-				dragEvent.consume();
-			});
-
-			return row;
+		parserFilterTable.getColumns().add(comparison);
+		
+		TableColumn<ParserFilter, String> value = new TableColumn<>("Value");
+		value.setEditable(true);
+		value.setCellValueFactory(new PropertyValueFactory<>("value"));
+		value.setCellFactory(TextFieldTableCell.forTableColumn());
+		value.setOnEditCommit(editEvent -> {
+			editEvent.getRowValue().setValue(editEvent.getNewValue());
 		});
+		parserFilterTable.getColumns().add(value);
+		
+		// ==================================================================
+		// Context Menu
+		// ==================================================================
 
-		prefiltersTable.getSelectionModel().selectedItemProperty().addListener((property, oldValue, newValue) -> {
-			prefilterValues.setItems(newValue.valueProperty());
+		ContextMenu prefiltersContextMenu = new ContextMenu();
+		parserFilterTable.setContextMenu(prefiltersContextMenu);
+
+		MenuItem create = new MenuItem("New Parser Filter");
+		create.setOnAction(event -> {
+			fieldsTable.getSelectionModel().getSelectedItem().getParserFilters().add(new ParserFilter());
 		});
+		prefiltersContextMenu.getItems().add(create);
 
-		prefiltersTable.addEventHandler(KeyEvent.KEY_PRESSED, keyEvent -> {
+		MenuItem removePrefilter = new MenuItem("Remove");
+		parserFilterTable.getSelectionModel().getSelectedItems().addListener((InvalidationListener) change -> {
+			removePrefilter.setVisible(!parserFilterTable.getSelectionModel().isEmpty());
+		});
+		removePrefilter.setOnAction(event -> {
+			removeParserFilter(parserFilterTable.getSelectionModel().getSelectedItems());
+		});
+		prefiltersContextMenu.getItems().add(removePrefilter);
+
+		// ==================================================================
+		// Key bindings
+		// ==================================================================
+
+		parserFilterTable.addEventHandler(KeyEvent.KEY_PRESSED, keyEvent -> {
 			switch (keyEvent.getCode()) {
 			case DELETE:
-				var selection = prefiltersTable.getSelectionModel();
-				if (!selection.isEmpty()) {
-					removeAction(selection.getSelectedItem());
-				}
+				removeParserFilter(parserFilterTable.getSelectionModel().getSelectedItems());
+				break;
+			default:
 				break;
 			}
 		});
-
-		// ========================== Prefilters Value ===========================
-
-		TableColumn<StringProperty, String> value = new TableColumn<>("Value");
-		value.setEditable(true);
-		value.setCellFactory(TextFieldTableCell.forTableColumn());
-		value.setCellValueFactory(s -> s.getValue());
-
-		prefilterValues.getColumns().add(value);
-
-		// ==================================================================
-		// Set Items
-		// ==================================================================
-
-		fieldsTable.setItems(tableData.fieldsProperty());
-		prefiltersTable.setItems(tableData.prefiltersProperty());
-
 	}
-	
 
-	private void removeAction(List<Field> fields) {
+	private void removeField(List<Field> fields) {
 		fields.forEach(i -> getTableData().getFields().remove(i));
 	}
 
-	private void removeAction(ParserFilter parserFilter) {
-		tableData.getPrefilters().remove(parserFilter);
+	private void removeParserFilter(List<ParserFilter> parserFilters) {
+		parserFilters.forEach(i -> fieldsTable.getSelectionModel().getSelectedItem().getParserFilters().remove(i));
 	}
 
 	private TableData getTableData() {

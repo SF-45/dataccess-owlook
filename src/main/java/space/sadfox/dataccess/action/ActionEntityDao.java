@@ -46,10 +46,12 @@ public class ActionEntityDao {
 	}
 	
 	public static List<ActionProvider> getActionProviders() {
-		return ModuleLoader.INSTANCE.loadModuleExtension().stream()
-				.filter(me -> me instanceof ActionProvider)
-				.map(aa -> (ActionProvider) aa)
-				.collect(Collectors.toList());
+		return ModuleLoader.INSTANCE.loadModuleExtension(ActionProvider.class, m -> m instanceof ActionProvider);
+		
+//		return ModuleLoader.INSTANCE.loadModuleExtension().stream()
+//				.filter(me -> me instanceof ActionProvider)
+//				.map(aa -> (ActionProvider) aa)
+//				.collect(Collectors.toList());
 		
 	}
 	
