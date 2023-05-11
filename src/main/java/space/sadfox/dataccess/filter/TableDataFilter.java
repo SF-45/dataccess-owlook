@@ -67,5 +67,17 @@ public class TableDataFilter extends JAXBEntity implements ChangeHistoryKeeping 
 		return true;
 	}
 
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder("TableDataFilter: " + getTitle() + "\n\n");
+		builder.append("Filters:\n");
+		for (Filter f : getFilters()) {
+			builder.append("\t" + f.getField() + " | " + f.getComparision()+ " | " + f.getValue() + "\n");
+		}
+		return builder.toString();
+	}
+	
+	
+
 
 }

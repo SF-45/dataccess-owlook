@@ -1,4 +1,4 @@
-package space.sadfox.dataccess.command.hmadapter;
+package space.sadfox.dataccess.action;
 
 import jakarta.xml.bind.annotation.XmlAccessType;
 import jakarta.xml.bind.annotation.XmlAccessorType;

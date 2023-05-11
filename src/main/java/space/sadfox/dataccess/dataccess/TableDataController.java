@@ -1,6 +1,9 @@
 package space.sadfox.dataccess.dataccess;
 
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 
 import javafx.beans.InvalidationListener;
@@ -26,9 +29,11 @@ import javafx.scene.control.cell.ComboBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.input.KeyEvent;
+import javafx.stage.FileChooser;
 import javafx.util.StringConverter;
 import space.sadfox.dataccess.ResourceTarget;
 import space.sadfox.owlook.ui.base.Controller;
+import space.sadfox.owlook.utils.StageFactory;
 
 public class TableDataController extends Controller {
 
@@ -49,6 +54,9 @@ public class TableDataController extends Controller {
 
 	@FXML
 	private TextField pathToDataTextField;
+
+	@FXML
+	private TextField titleTextField;
 
 	@FXML
 	private Button selectPath;
@@ -74,6 +82,10 @@ public class TableDataController extends Controller {
 	}
 
 	private void init() {
+
+		titleTextField.setText(getTableData().getTitle());
+		titleTextField.textProperty().bindBidirectional(getTableData().titleProperty());
+
 		autoUpdate.setSelected(getTableData().getAutoUpdate());
 		autoUpdate.selectedProperty().bindBidirectional(getTableData().autoUpdateProperty());
 
@@ -102,8 +114,25 @@ public class TableDataController extends Controller {
 			getTableData().setParser(newValue.getIdentifier());
 		});
 
-		configParser.setOnAction(
-				event -> parserChoiseBox.getSelectionModel().getSelectedItem().getConfigController(getTableData()).show());
+		configParser.setOnAction(event -> parserChoiseBox.getSelectionModel().getSelectedItem()
+				.getConfigController(getTableData()).show());
+
+		selectPath.setOnAction(event -> {
+			FileChooser chooser = new FileChooser();
+			// chooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("XML",
+			// "*.xml"));
+			if (pathToDataTextField.getText() != null) {
+				Path pathToData = Path.of(pathToDataTextField.getText());
+				if (Files.exists(pathToData.getParent())) {
+					chooser.setInitialDirectory(pathToData.getParent().toFile());
+				}
+			}
+			File chooseFile = chooser.showOpenDialog(StageFactory.INSTANCE.getCurrentStage());
+			if (chooseFile == null)
+				return;
+			pathToDataTextField.setText(chooseFile.getPath());
+		});
+
 	}
 
 	private void initFieldsTable() {
@@ -144,7 +173,7 @@ public class TableDataController extends Controller {
 
 			return row;
 		});
-		
+
 		fieldsTable.getSelectionModel().selectedItemProperty().addListener((property, oldValue, newValue) -> {
 			parserFilterTable.setItems(newValue.parserFiltersProperty());
 		});
@@ -184,7 +213,8 @@ public class TableDataController extends Controller {
 				if (!selection.isEmpty()) {
 					// var item = selection.getSelectedItem();
 					// tableData.getFields().remove(item);
-					//selection.getSelectedItems().forEach(i -> getTableData().getFields().remove(i));
+					// selection.getSelectedItems().forEach(i ->
+					// getTableData().getFields().remove(i));
 					removeField(selection.getSelectedItems());
 				}
 				break;
@@ -203,7 +233,7 @@ public class TableDataController extends Controller {
 			editEvent.getRowValue().setComparison(editEvent.getNewValue());
 		});
 		parserFilterTable.getColumns().add(comparison);
-		
+
 		TableColumn<ParserFilter, String> value = new TableColumn<>("Value");
 		value.setEditable(true);
 		value.setCellValueFactory(new PropertyValueFactory<>("value"));
@@ -212,7 +242,7 @@ public class TableDataController extends Controller {
 			editEvent.getRowValue().setValue(editEvent.getNewValue());
 		});
 		parserFilterTable.getColumns().add(value);
-		
+
 		// ==================================================================
 		// Context Menu
 		// ==================================================================

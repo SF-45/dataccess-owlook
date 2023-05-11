@@ -150,6 +150,27 @@ public class TableData extends JAXBEntity {
 		return true;
 	}
 
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder("TableData: " + getTitle() + "\n");
+		builder.append("Parser: " + getParser() + "\n");
+		builder.append("Path To Data: [" + getPathToData() + "]\n");
+		builder.append("Auto Update: " + getAutoUpdate() + "\n");
+		builder.append("Fields:\n");
+		
+		for (Field field : getFields()) {
+			builder.append("\t" + field.getFieldName() + "\n");
+			
+			for (ParserFilter parserFilter : field.getParserFilters()) {
+				builder.append("\t\t" + parserFilter.getComparison() + " " + parserFilter.getValue() + "\n");
+			}
+		}
+		
+		return builder.toString();
+	}
+	
+	
+
 	
 	
 	

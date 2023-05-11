@@ -1,5 +1,6 @@
 package space.sadfox.dataccess.dataccess;
 
+import java.io.IOException;
 import java.nio.file.Path;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -9,9 +10,11 @@ import java.util.List;
 
 import javax.xml.parsers.ParserConfigurationException;
 
+import jakarta.xml.bind.JAXBException;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import space.sadfox.dataccess.dataccess.core.DBHandler;
+import space.sadfox.owlook.jaxb.EntityLoader;
 import space.sadfox.owlook.utils.ErrorLogger;
 import space.sadfox.owlook.utils.ModuleLoader;
 
@@ -25,12 +28,35 @@ public class TableDataDao {
 	public TableDataDao(TableData tableData) {
 		this.tData = tableData;
 		Path tPath = tableData.getPath();
-		tableName = tPath.getFileName().toString().replace(".", "");
+		tableName = "table_" + tableData.getFileName();
 		dataBasePath = tPath.getParent().resolve(tPath.getFileName().toString());
 	}
 
 	public DataEntity createDataEntity() {
 		return new DataEntity(getTableData().getFields());
+	}
+	
+	public static TableData createTableData() {
+		EntityLoader loader = new EntityLoader();
+		try {
+			TableData tableData = loader.createEntity(TableData.class);
+			tableData.setTitle("New Table Data");
+			return tableData;
+		} catch (JAXBException | IOException e) {
+			ErrorLogger.registerException(e);
+		}
+		return null;
+	}
+	
+	public static List<TableData> loadAllTableDatas() {
+		EntityLoader loader = new EntityLoader();
+		try {
+			List<TableData> tableDatas = loader.loadAllEntities(TableData.class);
+			return tableDatas;
+		} catch (IOException e) {
+			ErrorLogger.registerException(e);
+		}
+		return null;
 	}
 
 	public void loadData() {

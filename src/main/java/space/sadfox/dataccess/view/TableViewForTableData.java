@@ -22,6 +22,7 @@ import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import space.sadfox.dataccess.dataccess.DataEntity;
 import space.sadfox.owlook.jaxb.ChangeListener;
+import space.sadfox.owlook.jaxb.EntityChangeListener;
 import space.sadfox.owlook.utils.StageFactory;
 
 public class TableViewForTableData extends TableView<DataEntity> {
@@ -36,7 +37,7 @@ public class TableViewForTableData extends TableView<DataEntity> {
     private SimpleIntegerProperty indProperty = new SimpleIntegerProperty();
     
     private TableDataView currentView;
-    private ChangeListener changeListener;
+    private EntityChangeListener changeListener;
      
     
     private Text selected = new Text("0");
@@ -141,13 +142,15 @@ public class TableViewForTableData extends TableView<DataEntity> {
 	
 	public void setTableDataView(TableDataView tableDataView) {
 		if (currentView != null) {
-			currentView.getChangeHistory().removeChangeListener(changeListener);
+			currentView.removeEntityChangeListener(changeListener);
 		}
 		currentView = tableDataView;
-		changeListener = () -> {
-			updateDataView();
+		changeListener = change -> {
+			if (change.wasModify()) {
+				updateDataView();
+			}
 		};
-		tableDataView.getChangeHistory().addChangeListener(changeListener);
+		tableDataView.addEntityChangeListener(changeListener);
 		updateDataView();
 	}
 	

@@ -65,5 +65,18 @@ public class TableDataView extends JAXBEntity {
 		return true;
 	}
 
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder("TableDataView: " + getTitle() + "\n\n");
+		builder.append("FieldViews:\n");
+		
+		for (FieldView view : getFieldViews()) {
+			builder.append("\t" + view.getFieldName() +" | "+ view.getFriendlyFieldName() + " | " + view.getVisible() + "\n");
+		}
+		return builder.toString();
+	}
+	
+	
+
 
 }

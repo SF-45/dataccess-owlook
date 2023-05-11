@@ -34,9 +34,9 @@ public class ActionEntityDao {
 		return null;
 	}
 	
-	public static ActionEntity createActionEntity(String fileName, ActionProvider provider) {
+	public static ActionEntity createActionEntity(ActionProvider provider) {
 		try {
-			ActionEntity actionEntity = loader.createEntity(fileName, ActionEntity.class);
+			ActionEntity actionEntity = loader.createEntity(ActionEntity.class);
 			actionEntity.setActionProvider(provider.getIdentifier());
 			return actionEntity;
 		} catch (JAXBException | IOException e) {

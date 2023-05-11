@@ -1,4 +1,4 @@
-package space.sadfox.dataccess.command.hmadapter;
+package space.sadfox.dataccess.action;
 
 import java.util.ArrayList;
 import java.util.List;

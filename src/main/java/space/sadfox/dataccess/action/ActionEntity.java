@@ -14,7 +14,6 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableMap;
-import space.sadfox.dataccess.command.hmadapter.HashMapAdapter;
 import space.sadfox.owlook.jaxb.JAXBEntity;
 
 @XmlAccessorType(XmlAccessType.NONE)
@@ -96,6 +95,21 @@ public class ActionEntity extends JAXBEntity {
 	public boolean validate() {
 		return true;
 	}
+
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder("Action: " + getTitle() + "\n");
+		builder.append("Action Provider: " + getActionProvider() + "\n\n");
+		builder.append("Properties:\n");
+		
+		getActionProperties().forEach((key, value) -> {
+			builder.append("\t" + key + " = [" + value.get() + "]\n");
+		});
+		
+		return builder.toString();
+	}
+	
+	
 
 
 }

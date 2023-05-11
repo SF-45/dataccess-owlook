@@ -66,6 +66,5 @@ public class TableDataFilterDao {
 		return filter;
 	}
 	
-	
 
 }
