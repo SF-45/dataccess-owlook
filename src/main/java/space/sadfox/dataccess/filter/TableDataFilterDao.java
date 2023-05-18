@@ -1,5 +1,6 @@
 package space.sadfox.dataccess.filter;
 
+import java.io.IOException;
 import java.util.Iterator;
 
 import jakarta.xml.bind.JAXBException;
@@ -7,17 +8,17 @@ import space.sadfox.dataccess.dataccess.Comparison;
 import space.sadfox.dataccess.dataccess.DataEntity;
 import space.sadfox.dataccess.dataccess.TableData;
 import space.sadfox.dataccess.dataccess.TableDataDao;
+import space.sadfox.owlook.jaxb.EntityLoader;
+import space.sadfox.owlook.utils.ErrorLogger;
 
 public class TableDataFilterDao {
 
 	private TableDataFilter filter;
 	private TableData tData;
-	private TableDataDao tableDataDao;
 
 	public TableDataFilterDao(TableDataFilter filter, TableData tableData) {
 		this.filter = filter;
 		this.tData = tableData;
-		tableDataDao = new TableDataDao(tData);
 	}
 
 
@@ -33,7 +34,7 @@ public class TableDataFilterDao {
 
 	public DataEntity[] getDataEntities() throws JAXBException {
 
-		if (tableDataDao == null)
+		if (getTableData() == null)
 			throw new JAXBException("Table Data is not connected");
 		StringBuilder sqlBulder = new StringBuilder();
 
@@ -58,12 +59,37 @@ public class TableDataFilterDao {
 				sqlBulder.append(" " + filter.getNext() + " ");
 		}
 
-		return tableDataDao.selectAllWhere(sqlBulder.toString());
+		return getTableDataDao().selectAllWhere(sqlBulder.toString());
 
+	}
+	
+	public static TableDataFilter createTableDataFilter() {
+		try {
+			return EntityLoader.INSTANCE.createEntity(TableDataFilter.class);
+		} catch (JAXBException | IOException e) {
+			ErrorLogger.registerException(e);
+		}
+		return null;
+	}
+	
+	public static boolean deleteTableDataFiter(TableDataFilter tableDataFilter) {
+		return EntityLoader.INSTANCE.deleteEntity(tableDataFilter);
+	}
+	
+	public static TableDataFilter loadTableDataFilter(String fileName) throws IOException, JAXBException {
+		return EntityLoader.INSTANCE.loadEntity(fileName, TableDataFilter.class);
 	}
 
 	public TableDataFilter getFilter() {
 		return filter;
+	}
+	
+	private TableData getTableData() {
+		return tData;
+	}
+	
+	private TableDataDao getTableDataDao() {
+		return new TableDataDao(getTableData());
 	}
 	
 

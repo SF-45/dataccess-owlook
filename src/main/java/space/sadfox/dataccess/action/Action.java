@@ -1,7 +1,6 @@
 package space.sadfox.dataccess.action;
 
 import space.sadfox.dataccess.dataccess.DataEntity;
-import space.sadfox.dataccess.dataccess.TableData;
 import space.sadfox.owlook.ui.base.Controller;
 
 public interface Action {

@@ -1,5 +1,6 @@
 package space.sadfox.dataccess.dataccess;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -9,7 +10,6 @@ import jakarta.xml.bind.annotation.XmlAttribute;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlElementWrapper;
 import jakarta.xml.bind.annotation.XmlRootElement;
-import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -17,23 +17,23 @@ import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import space.sadfox.owlook.jaxb.JAXBEntity;
-import space.sadfox.owlook.jaxb.adapters.StringPropertyAdapter;
-
+import space.sadfox.owlook.ui.base.Controller;
+import space.sadfox.owlook.utils.Nullable;
 
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlRootElement
 public class TableData extends JAXBEntity {
-	
+
 	private StringProperty title;
 
-    private StringProperty pathToData;
-    
-    private BooleanProperty autoUpdate;
-    
-    private StringProperty parser;
-    
-    private ObservableList<Field> fields;
-    
+	private StringProperty pathToData;
+
+	private BooleanProperty autoUpdate;
+
+	private StringProperty parser;
+
+	private ObservableList<Field> fields;
+
 	@Override
 	@XmlAttribute(name = "title")
 	public String getTitle() {
@@ -43,23 +43,23 @@ public class TableData extends JAXBEntity {
 	public void setTitle(String tableName) {
 		titleProperty().set(tableName);
 	}
-	
+
 	public StringProperty titleProperty() {
 		if (title == null) {
 			title = new SimpleStringProperty();
 		}
 		return title;
 	}
-	
+
 	@XmlAttribute(name = "parser")
 	public String getParser() {
 		return parserProperty().get();
 	}
-	
+
 	public void setParser(String parser) {
 		parserProperty().set(parser);
 	}
-	
+
 	public StringProperty parserProperty() {
 		if (parser == null) {
 			parser = new SimpleStringProperty();
@@ -75,14 +75,14 @@ public class TableData extends JAXBEntity {
 	public void setPathToData(String pathToData) {
 		pathToDataProperty().set(pathToData);
 	}
-	
+
 	public StringProperty pathToDataProperty() {
 		if (pathToData == null) {
 			pathToData = new SimpleStringProperty();
 		}
 		return pathToData;
 	}
-	
+
 	@XmlAttribute(name = "autoUpdate")
 	public Boolean getAutoUpdate() {
 		return autoUpdateProperty().get();
@@ -91,7 +91,7 @@ public class TableData extends JAXBEntity {
 	public void setAutoUpdate(Boolean autoUpdate) {
 		autoUpdateProperty().set(autoUpdate);
 	}
-	
+
 	public BooleanProperty autoUpdateProperty() {
 		if (autoUpdate == null) {
 			autoUpdate = new SimpleBooleanProperty(false);
@@ -104,7 +104,7 @@ public class TableData extends JAXBEntity {
 	public List<Field> getFields() {
 		return fieldsProperty();
 	}
-	
+
 	public ObservableList<Field> fieldsProperty() {
 		if (fields == null) {
 			fields = FXCollections.observableArrayList();
@@ -114,10 +114,7 @@ public class TableData extends JAXBEntity {
 
 	@Override
 	public List<Object> getProperties() {
-		return Arrays.asList(titleProperty(),
-				pathToDataProperty(),
-				autoUpdateProperty(),
-				fieldsProperty());
+		return Arrays.asList(titleProperty(), pathToDataProperty(), autoUpdateProperty(), fieldsProperty());
 	}
 
 	@Override
@@ -125,29 +122,16 @@ public class TableData extends JAXBEntity {
 		return ".tdata";
 	}
 
-//	@Override
-//	public PreLoadAction getPreLoadAction() {
-//		return (entity) -> {
-//			if (entity instanceof TableData) {
-//				TableData tData = (TableData) entity;
-//				if (tData.getAutoUpdate()) {
-//					new TableDataDao(tData).loadData();
-//				}
-//			}
-//		};
-//	} TODO: Удалить потом
-
 	@Override
 	public void initialize() {
 		if (getAutoUpdate()) {
 			new TableDataDao(this).loadData();
 		}
-		
+
 	}
-	
+
 	@Override
-	public boolean validate() {
-		return true;
+	public void validate() {
 	}
 
 	@Override
@@ -157,27 +141,39 @@ public class TableData extends JAXBEntity {
 		builder.append("Path To Data: [" + getPathToData() + "]\n");
 		builder.append("Auto Update: " + getAutoUpdate() + "\n");
 		builder.append("Fields:\n");
-		
+
 		for (Field field : getFields()) {
 			builder.append("\t" + field.getFieldName() + "\n");
-			
+
 			for (ParserFilter parserFilter : field.getParserFilters()) {
 				builder.append("\t\t" + parserFilter.getComparison() + " " + parserFilter.getValue() + "\n");
 			}
 		}
-		
+
 		return builder.toString();
 	}
-	
-	
 
-	
-	
-	
-	
-    
-    
-    
-    
+	@Override
+	public Controller getConfigController() throws IOException, Nullable {
+		return new TableDataController(this);
+	}
+
+	@Override
+	public void syncWith(JAXBEntity entity) {
+		if (!(entity instanceof TableData)) {
+			return;
+		}
+		
+		TableData newTableData = (TableData) entity;
+		
+		setTitle(newTableData.getTitle());
+		setPathToData(newTableData.getPathToData());
+		setAutoUpdate(newTableData.getAutoUpdate());
+		setParser(newTableData.getParser());
+		getFields().clear();
+		getFields().addAll(newTableData.getFields());
+		
+
+	}
 
 }

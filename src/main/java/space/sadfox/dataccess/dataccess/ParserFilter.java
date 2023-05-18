@@ -1,7 +1,7 @@
 package space.sadfox.dataccess.dataccess;
 
 import java.util.Arrays;
-import java.util.List;import javax.print.attribute.standard.Copies;
+import java.util.List;
 
 import jakarta.xml.bind.annotation.XmlAttribute;
 import javafx.beans.property.ObjectProperty;

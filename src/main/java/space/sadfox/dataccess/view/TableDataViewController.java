@@ -26,100 +26,108 @@ import javafx.scene.input.KeyEvent;
 import space.sadfox.dataccess.ResourceTarget;
 import space.sadfox.dataccess.dataccess.TableData;
 import space.sadfox.owlook.ui.base.Controller;
+import space.sadfox.owlook.utils.Nullable;
 
 public class TableDataViewController extends Controller {
-	
+
 	@FXML
 	private ChoiceBox<String> TDField;
-	
+
 	@FXML
 	private Button add;
-	
+
 	@FXML
 	private TextField friendlyName;
-	
+
 	@FXML
-	private TableView<FieldView> tableView;
-	
+	private TableView<FieldView> viewTable;
+
 	@FXML
 	private TextField title;
-	
+
 	private TableData tableData;
 	private TableDataView view;
 	private TableDataViewDao viewDao;
-	
+
 	public TableDataViewController(TableDataView view, TableData tableData) throws IOException {
 		super(ResourceTarget.class.getResource("fxml/edit-view.fxml"));
-		
-		getStage().titleProperty().bind(Bindings.concat("Edit View [", view.titleProperty(), "]"));
-		
+
 		this.tableData = tableData;
 		this.view = view;
-		viewDao = new TableDataViewDao(view);
 		
-		title.textProperty().bindBidirectional(view.titleProperty());
-		title.textProperty().addListener((property, oldValue, newValue) -> {
-			view.save();
-		});
+		init();
+		initViewTable();
+		initKeyBind();
+
+	}
+	
+	public TableDataViewController(TableDataView view) throws IOException {
+		super(ResourceTarget.class.getResource("fxml/edit-view.fxml"));
+
+		this.tableData = null;
+		this.view = view;
 		
-		TDField.getItems().addAll(getTableDataFields());
-		if (TDField.getItems().size() > 0) {
-			TDField.getSelectionModel().select(0);
-		}
-		
-		add.setOnAction(event -> {
-			viewDao.addNewField(TDField.getValue(), friendlyName.getText());
-			view.save();
-		});
-		
-		getParent().addEventHandler(KeyEvent.KEY_PRESSED, keyEvent -> {
-			switch (keyEvent.getCode()) {
-			case Z:
-				if (keyEvent.isControlDown()) {
-					view.getChangeHistory().back();
-					view.save();
-				}
-				break;
+		init();
+		initViewTable();
+		initKeyBind();
+
+	}
+
+	private void init() {
+		getStage().titleProperty().bind(Bindings.concat("Edit View [", getTableDataView().titleProperty(), "]"));
+
+		title.textProperty().bindBidirectional(getTableDataView().titleProperty());
+
+		try {
+			TDField.getItems().addAll(getTableDataFields());
+			if (TDField.getItems().size() > 0) {
+				TDField.getSelectionModel().select(0);
 			}
-		});
-		// =======================Init TableData=======================
+		} catch (Nullable e) {}
 		
+
+		add.setOnAction(event -> {
+			getTableDataViewDao().addNewField(TDField.getValue(), friendlyName.getText());
+		});
+	}
+
+	@SuppressWarnings("unchecked")
+	private void initViewTable() {
 		TableColumn<FieldView, String> field = new TableColumn<>("Field");
 		field.setCellValueFactory(new PropertyValueFactory<>("fieldName"));
-		field.setCellFactory(ComboBoxTableCell.forTableColumn(getTableDataFields()));
+		try {
+			field.setCellFactory(ComboBoxTableCell.forTableColumn(getTableDataFields()));
+		} catch (Nullable e) {
+			field.setCellFactory(TextFieldTableCell.forTableColumn());
+		}
 		field.setOnEditCommit(editEvent -> {
 			editEvent.getRowValue().setFieldName(editEvent.getNewValue());
-			view.save();
 		});
-		
+
 		TableColumn<FieldView, String> friendlyName = new TableColumn<>("Friendly Name");
 		friendlyName.setCellValueFactory(new PropertyValueFactory<>("friendlyFieldName"));
 		friendlyName.setCellFactory(TextFieldTableCell.forTableColumn());
 		friendlyName.setOnEditCommit(editEvent -> {
 			editEvent.getRowValue().setFriendlyFieldName(editEvent.getNewValue());
-			view.save();
 		});
-		
+
 		TableColumn<FieldView, Boolean> visible = new TableColumn<>("Visible");
 		visible.setCellValueFactory(new PropertyValueFactory<>("visible"));
 		visible.setCellFactory(call -> {
 			CheckBoxTableCell<FieldView, Boolean> cell = new CheckBoxTableCell<>();
-			cell.itemProperty().addListener((prop, oldVal, newVal) -> {
-				view.save();
-			});
 			return cell;
 		});
-		//visible.setCellFactory(CheckBoxTableCell.forTableColumn(visible));
-		
-		tableView.getColumns().addAll(field, friendlyName, visible);
-		tableView.setItems(view.fieldViewsProperty());
-		
+		// visible.setCellFactory(CheckBoxTableCell.forTableColumn(visible));
+
+		viewTable.getColumns().addAll(field, friendlyName, visible);
+		viewTable.setItems(getTableDataView().fieldViewsProperty());
+
 		ObjectProperty<FieldView> draggedView = new SimpleObjectProperty<>();
 		IntegerProperty draggedInd = new SimpleIntegerProperty();
-		
-		tableView.setRowFactory(call -> {
+
+		viewTable.setRowFactory(call -> {
 			TableRow<FieldView> row = new TableRow<>();
-			
+
 			row.setOnDragDetected(dragEvent -> {
 				draggedView.set(row.getItem());
 				draggedInd.set(row.getIndex());
@@ -130,38 +138,65 @@ public class TableDataViewController extends Controller {
 				if (draggedInd.get() == row.getIndex() || draggedView.get() == null || row.getItem() == null)
 					return;
 				int tempInd = row.getIndex();
-				tableView.getItems().remove(draggedView.get());
-				tableView.getItems().add(tempInd, draggedView.get());
-				tableView.getSelectionModel().select(tempInd);
+				viewTable.getItems().remove(draggedView.get());
+				viewTable.getItems().add(tempInd, draggedView.get());
+				viewTable.getSelectionModel().select(tempInd);
 				draggedInd.set(tempInd);
-				view.save();
 				dragEvent.consume();
 			});
-			
+
 			return row;
 		});
-		
-		tableView.addEventHandler(KeyEvent.KEY_PRESSED, keyEvent -> {
+	}
+
+	private void initKeyBind() {
+		getParent().addEventHandler(KeyEvent.KEY_PRESSED, keyEvent -> {
 			switch (keyEvent.getCode()) {
-			case DELETE:
-				var selection = tableView.getSelectionModel();
-				if (!selection.isEmpty()) {
-					var item = selection.getSelectedItem();
-					view.getFieldViews().remove(item);
-					view.save();
+			case Z:
+				if (keyEvent.isControlDown()) {
+					getTableDataView().getChangeHistory().back();
 				}
 				break;
+			default:
+				break;
 			}
-
 		});
-		
+
+		viewTable.addEventHandler(KeyEvent.KEY_PRESSED, keyEvent -> {
+			switch (keyEvent.getCode()) {
+			case DELETE:
+				var selection = viewTable.getSelectionModel();
+				if (!selection.isEmpty()) {
+					var item = selection.getSelectedItem();
+					getTableDataView().getFieldViews().remove(item);
+				}
+				break;
+			default:
+				break;
+			}
+		});
 	}
-	
-	private ObservableList<String> getTableDataFields() {
-		List<String> fields = tableData.getFields().stream().map(f -> f.getFieldName()).collect(Collectors.toList());
+
+	private TableData getTableData() throws Nullable {
+		if (tableData == null)
+			throw new Nullable();
+		return tableData;
+	}
+
+	private TableDataView getTableDataView() {
+		return view;
+	}
+
+	private TableDataViewDao getTableDataViewDao() {
+		if (viewDao == null) {
+			viewDao = new TableDataViewDao(getTableDataView());
+		}
+		return viewDao;
+	}
+
+	private ObservableList<String> getTableDataFields() throws Nullable {
+		List<String> fields = getTableData().getFields().stream().map(f -> f.getFieldName()).collect(Collectors.toList());
 		return FXCollections.observableList(fields);
 	}
-
-
 
 }

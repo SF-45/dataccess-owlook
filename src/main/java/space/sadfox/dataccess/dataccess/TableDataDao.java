@@ -11,8 +11,6 @@ import java.util.List;
 import javax.xml.parsers.ParserConfigurationException;
 
 import jakarta.xml.bind.JAXBException;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
 import space.sadfox.dataccess.dataccess.core.DBHandler;
 import space.sadfox.owlook.jaxb.EntityLoader;
 import space.sadfox.owlook.utils.ErrorLogger;
@@ -35,11 +33,10 @@ public class TableDataDao {
 	public DataEntity createDataEntity() {
 		return new DataEntity(getTableData().getFields());
 	}
-	
+
 	public static TableData createTableData() {
-		EntityLoader loader = new EntityLoader();
 		try {
-			TableData tableData = loader.createEntity(TableData.class);
+			TableData tableData = EntityLoader.INSTANCE.createEntity(TableData.class);
 			tableData.setTitle("New Table Data");
 			return tableData;
 		} catch (JAXBException | IOException e) {
@@ -47,16 +44,23 @@ public class TableDataDao {
 		}
 		return null;
 	}
-	
+
+	public static boolean deleteTableData(TableData tableData) {
+		return EntityLoader.INSTANCE.deleteEntity(tableData);
+	}
+
+	public static TableData loadTableData(String fileName) throws IOException, JAXBException {
+		return EntityLoader.INSTANCE.loadEntity(fileName, TableData.class);
+	}
+
 	public static List<TableData> loadAllTableDatas() {
-		EntityLoader loader = new EntityLoader();
-		try {
-			List<TableData> tableDatas = loader.loadAllEntities(TableData.class);
-			return tableDatas;
-		} catch (IOException e) {
-			ErrorLogger.registerException(e);
-		}
-		return null;
+		List<TableData> tableDatas = EntityLoader.INSTANCE.loadAllEntities(TableData.class);
+		return tableDatas;
+
+	}
+	
+	public static boolean existTableData(String fileName) {
+		return EntityLoader.INSTANCE.entityExist(fileName, TableData.class);
 	}
 
 	public void loadData() {
@@ -64,7 +68,8 @@ public class TableDataDao {
 			Statement statement = handler.getStatement();
 			createNewTable(statement);
 			ParserProvider parser = getParserProvider();
-			if (parser  == null) throw new ParserConfigurationException("Parser provider not found");
+			if (parser == null)
+				throw new ParserConfigurationException("Parser provider not found");
 			List<DataEntity> data = parser.parse(getTableData());
 
 			for (DataEntity entity : data) {
@@ -73,11 +78,11 @@ public class TableDataDao {
 				} catch (SQLException e) {
 					ErrorLogger.registerException(e);
 				}
-				
+
 			}
 		} catch (SQLException | ParserConfigurationException e) {
 			ErrorLogger.registerException(e);
-		} 
+		}
 
 	}
 
@@ -156,7 +161,7 @@ public class TableDataDao {
 		}
 		return new DataEntity[0];
 	}
-	
+
 	public ParserProvider getParserProvider() {
 		for (ParserProvider p : getParserProviders()) {
 			if (getTableData().getParser().equals(p.getIdentifier())) {
@@ -165,7 +170,7 @@ public class TableDataDao {
 		}
 		return null;
 	}
-	
+
 	public static List<ParserProvider> getParserProviders() {
 		return ModuleLoader.INSTANCE.loadModuleExtension(ParserProvider.class, m -> m instanceof ParserProvider);
 	}

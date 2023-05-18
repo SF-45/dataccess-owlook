@@ -1,5 +1,6 @@
 package space.sadfox.dataccess.filter;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -13,8 +14,11 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import space.sadfox.dataccess.dataccess.TableData;
 import space.sadfox.owlook.jaxb.JAXBEntity;
 import space.sadfox.owlook.moduleapi.ChangeHistoryKeeping;
+import space.sadfox.owlook.ui.base.Controller;
+import space.sadfox.owlook.utils.Nullable;
 
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlRootElement
@@ -63,8 +67,7 @@ public class TableDataFilter extends JAXBEntity implements ChangeHistoryKeeping 
 	}
 	
 	@Override
-	public boolean validate() {
-		return true;
+	public void validate() {
 	}
 
 	@Override
@@ -75,6 +78,28 @@ public class TableDataFilter extends JAXBEntity implements ChangeHistoryKeeping 
 			builder.append("\t" + f.getField() + " | " + f.getComparision()+ " | " + f.getValue() + "\n");
 		}
 		return builder.toString();
+	}
+
+	@Override
+	public Controller getConfigController() throws IOException, Nullable {
+		return new TableDataFilterController(this);
+	}
+	
+	public Controller getConfigController(TableData tableData) throws IOException, Nullable {
+		return new TableDataFilterController(this, tableData);
+	}
+
+	@Override
+	public void syncWith(JAXBEntity entity) {
+		if (!(entity instanceof TableDataFilter)) {
+			return;
+		}
+		
+		TableDataFilter f = (TableDataFilter) entity;
+		
+		setTitle(f.getTitle());
+		getFilters().clear();
+		getFilters().addAll(f.getFilters());
 	}
 	
 	

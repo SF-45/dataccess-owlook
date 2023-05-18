@@ -6,10 +6,9 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
 
-
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="380.0" prefWidth="411.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="380.0" prefWidth="411.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1">
    <children>
-      <TableView fx:id="tableView" editable="true" layoutX="14.0" layoutY="72.0" prefHeight="293.0" prefWidth="381.0" AnchorPane.bottomAnchor="15.0" AnchorPane.leftAnchor="15.0" AnchorPane.rightAnchor="15.0" AnchorPane.topAnchor="72.0" />
+      <TableView fx:id="viewTable" editable="true" layoutX="14.0" layoutY="72.0" prefHeight="293.0" prefWidth="381.0" AnchorPane.bottomAnchor="15.0" AnchorPane.leftAnchor="15.0" AnchorPane.rightAnchor="15.0" AnchorPane.topAnchor="72.0" />
       <ChoiceBox fx:id="TDField" layoutX="15.0" layoutY="35.0" prefWidth="150.0" AnchorPane.leftAnchor="15.0" AnchorPane.topAnchor="35.0" />
       <TextField fx:id="friendlyName" layoutX="173.0" layoutY="35.0" AnchorPane.leftAnchor="173.0" AnchorPane.topAnchor="35.0" />
       <Button fx:id="add" layoutX="331.0" layoutY="35.0" mnemonicParsing="false" text="Add" AnchorPane.leftAnchor="331.0" AnchorPane.topAnchor="35.0" />

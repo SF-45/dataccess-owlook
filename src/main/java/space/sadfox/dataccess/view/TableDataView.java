@@ -1,5 +1,6 @@
 package space.sadfox.dataccess.view;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -13,7 +14,10 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import space.sadfox.dataccess.dataccess.TableData;
 import space.sadfox.owlook.jaxb.JAXBEntity;
+import space.sadfox.owlook.ui.base.Controller;
+import space.sadfox.owlook.utils.Nullable;
 
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlRootElement
@@ -61,8 +65,7 @@ public class TableDataView extends JAXBEntity {
 	}
 	
 	@Override
-	public boolean validate() {
-		return true;
+	public void validate() {
 	}
 
 	@Override
@@ -74,6 +77,29 @@ public class TableDataView extends JAXBEntity {
 			builder.append("\t" + view.getFieldName() +" | "+ view.getFriendlyFieldName() + " | " + view.getVisible() + "\n");
 		}
 		return builder.toString();
+	}
+
+	@Override
+	public Controller getConfigController() throws IOException, Nullable {
+		return new TableDataViewController(this);
+	}
+	
+	public Controller getConfigController(TableData tableData) throws IOException, Nullable {
+		return new TableDataViewController(this, tableData);
+	}
+
+	@Override
+	public void syncWith(JAXBEntity entity) {
+		if (!(entity instanceof TableDataView)) {
+			return;
+		}
+		
+		TableDataView v = (TableDataView) entity;
+		
+		setTitle(v.getTitle());
+		getFieldViews().clear();
+		getFieldViews().addAll(v.getFieldViews());
+		
 	}
 	
 	

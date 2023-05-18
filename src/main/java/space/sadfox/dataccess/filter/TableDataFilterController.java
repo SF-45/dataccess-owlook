@@ -27,6 +27,7 @@ import space.sadfox.dataccess.ResourceTarget;
 import space.sadfox.dataccess.dataccess.Comparison;
 import space.sadfox.dataccess.dataccess.TableData;
 import space.sadfox.owlook.ui.base.Controller;
+import space.sadfox.owlook.utils.Nullable;
 
 public class TableDataFilterController extends Controller {
 
@@ -55,29 +56,44 @@ public class TableDataFilterController extends Controller {
 
 	public TableDataFilterController(TableDataFilter filter, TableData tableData) throws IOException {
 		super(ResourceTarget.class.getResource("fxml/edit-filter.fxml"));
-
-		getStage().titleProperty().bind(Bindings.concat("Edit Filter [", filter.titleProperty(), "]"));
-		
 		this.filter = filter;
-		filterDao = new TableDataFilterDao(filter, tableData);
 		this.tableData = tableData;
+		
+		init();
+		initFiltersTableView();
+		initKeyBind();
 
-		titleTextBox.textProperty().bindBidirectional(filter.titleProperty());
-		titleTextBox.textProperty().addListener((property, oldValue, newValue) -> {
-			filter.save();
-		});
+	}
+	
+	public TableDataFilterController(TableDataFilter filter) throws IOException {
+		super(ResourceTarget.class.getResource("fxml/edit-filter.fxml"));
+		this.filter = filter;
+		this.tableData = null;
+		
+		init();
+		initFiltersTableView();
+		initKeyBind();
 
-		dateFieldComboBox.getItems().addAll(getTableDataFields());
-		if (dateFieldComboBox.getItems().size() > 0) {
-			dateFieldComboBox.getSelectionModel().select(0);
-		}
+	}
 
+	private void init() {
+		getStage().titleProperty().bind(Bindings.concat("Edit Filter [", getTableDataFilter().titleProperty(), "]"));
+		titleTextBox.textProperty().bindBidirectional(getTableDataFilter().titleProperty());
+
+		try {
+			dateFieldComboBox.getItems().addAll(getTableDataFields());
+			if (dateFieldComboBox.getItems().size() > 0) {
+				dateFieldComboBox.getSelectionModel().select(0);
+			}
+		} catch (Nullable e) {}
+		
 		compareComboBox.getItems().addAll(Comparison.values());
 		compareComboBox.getSelectionModel().select(0);
 
 		currectComp.addListener((property, oldValue, newValue) -> {
 			addto.setText(newValue.toString());
 		});
+
 		MenuItem and = new MenuItem("AND");
 		and.setOnAction(event -> currectComp.set(NextComp.AND));
 		MenuItem or = new MenuItem("OR");
@@ -85,30 +101,32 @@ public class TableDataFilterController extends Controller {
 		addto.getItems().addAll(and, or);
 		addto.setText(currectComp.get().toString());
 		addto.setOnAction(event -> {
-			filterDao.addNewFilter(dateFieldComboBox.getValue(), compareComboBox.getValue(), valueTextBox.getText(),
-					currectComp.get());
-			filter.save();
-		});
-
-		getParent().addEventHandler(KeyEvent.KEY_PRESSED, keyEvent -> {
-			switch (keyEvent.getCode()) {
-			case Z:
-				if (keyEvent.isControlDown()) {
-					filter.getChangeHistory().back();
-					filter.save();
-				}
-				break;
+			try {
+				geTableDataFilterDao().addNewFilter(dateFieldComboBox.getValue(), compareComboBox.getValue(),
+						valueTextBox.getText(), currectComp.get());
+			} catch (Nullable e) {
+				Filter newFilter = new Filter();
+				newFilter.setField(dateFieldComboBox.getValue());
+				newFilter.setComparision(compareComboBox.getValue());
+				newFilter.setValue(valueTextBox.getText());
+				newFilter.setNext(currectComp.get());
+				getTableDataFilter().getFilters().add(newFilter);
 			}
 		});
+	}
 
-		// =======================Init TableData=======================
+	@SuppressWarnings("unchecked")
+	private void initFiltersTableView() {
 		TableColumn<Filter, String> field = new TableColumn<>("Field");
 		field.setEditable(true);
 		field.setCellValueFactory(new PropertyValueFactory<>("field"));
-		field.setCellFactory(ComboBoxTableCell.forTableColumn(getTableDataFields()));
+		try {
+			field.setCellFactory(ComboBoxTableCell.forTableColumn(getTableDataFields()));
+		} catch (Nullable e) {
+			field.setCellFactory(TextFieldTableCell.forTableColumn());
+		}
 		field.setOnEditCommit(editEvent -> {
 			editEvent.getRowValue().setField(editEvent.getNewValue());
-			filter.save();
 		});
 
 		TableColumn<Filter, Comparison> comparison = new TableColumn<>("Comparison");
@@ -117,7 +135,6 @@ public class TableDataFilterController extends Controller {
 		comparison.setCellFactory(ComboBoxTableCell.forTableColumn(Comparison.values()));
 		comparison.setOnEditCommit(event -> {
 			event.getRowValue().setComparision(event.getNewValue());
-			filter.save();
 		});
 
 		TableColumn<Filter, String> value = new TableColumn<>("Value");
@@ -126,7 +143,6 @@ public class TableDataFilterController extends Controller {
 		value.setCellFactory(TextFieldTableCell.forTableColumn());
 		value.setOnEditCommit(editEvent -> {
 			editEvent.getRowValue().setValue(editEvent.getNewValue());
-			filter.save();
 		});
 
 		TableColumn<Filter, NextComp> next = new TableColumn<>("Next");
@@ -135,11 +151,10 @@ public class TableDataFilterController extends Controller {
 		next.setCellFactory(ComboBoxTableCell.forTableColumn(NextComp.values()));
 		next.setOnEditCommit(editEvent -> {
 			editEvent.getRowValue().setNext(editEvent.getNewValue());
-			filter.save();
 		});
 
 		filtersTableView.getColumns().addAll(field, comparison, value, next);
-		filtersTableView.setItems(filter.filtersProperty());
+		filtersTableView.setItems(getTableDataFilter().filtersProperty());
 
 		ObjectProperty<Filter> draggedFilter = new SimpleObjectProperty<>();
 		IntegerProperty draggedInd = new SimpleIntegerProperty();
@@ -161,33 +176,64 @@ public class TableDataFilterController extends Controller {
 				filtersTableView.getItems().add(tempInd, draggedFilter.get());
 				filtersTableView.getSelectionModel().select(tempInd);
 				draggedInd.set(tempInd);
-				filter.save();
 				dragEvent.consume();
 			});
 
 			return row;
 		});
+	}
+
+	private void initKeyBind() {
+		getParent().addEventHandler(KeyEvent.KEY_PRESSED, keyEvent -> {
+			switch (keyEvent.getCode()) {
+			case Z:
+				if (keyEvent.isControlDown()) {
+					getTableDataFilter().getChangeHistory().back();
+				}
+				break;
+			default:
+				break;
+			}
+		});
+
 		filtersTableView.addEventHandler(KeyEvent.KEY_PRESSED, keyEvent -> {
 			switch (keyEvent.getCode()) {
 			case DELETE:
 				var selection = filtersTableView.getSelectionModel();
 				if (!selection.isEmpty()) {
 					var item = selection.getSelectedItem();
-					filter.getFilters().remove(item);
-					filter.save();
+					getTableDataFilter().getFilters().remove(item);
 				}
+				break;
+			default:
 				break;
 			}
 
 		});
 	}
 
-	private ObservableList<String> getTableDataFields() {
-		List<String> fields = tableData.getFields().stream().map(f -> f.getFieldName()).collect(Collectors.toList());
-		return FXCollections.observableList(fields);
+	private TableData getTableData() throws Nullable {
+		if (tableData == null)
+			throw new Nullable();
+		return tableData;
 	}
 
-	private void initTableView() {
+	private TableDataFilter getTableDataFilter() {
+		return filter;
+	}
+
+	private TableDataFilterDao geTableDataFilterDao() throws Nullable {
+		if (filterDao == null) {
+			filterDao = new TableDataFilterDao(getTableDataFilter(), getTableData());
+		}
+
+		return filterDao;
+	}
+
+	private ObservableList<String> getTableDataFields() throws Nullable {
+		List<String> fields = getTableData().getFields().stream().map(f -> f.getFieldName())
+				.collect(Collectors.toList());
+		return FXCollections.observableList(fields);
 
 	}
 

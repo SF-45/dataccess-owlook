@@ -1,5 +1,6 @@
 package space.sadfox.dataccess.action;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -15,6 +16,8 @@ import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableMap;
 import space.sadfox.owlook.jaxb.JAXBEntity;
+import space.sadfox.owlook.ui.base.Controller;
+import space.sadfox.owlook.utils.Nullable;
 
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlRootElement
@@ -92,8 +95,7 @@ public class ActionEntity extends JAXBEntity {
 	}
 	
 	@Override
-	public boolean validate() {
-		return true;
+	public void validate() {
 	}
 
 	@Override
@@ -107,6 +109,28 @@ public class ActionEntity extends JAXBEntity {
 		});
 		
 		return builder.toString();
+	}
+
+	@Override
+	public Controller getConfigController() throws IOException, Nullable {
+		return new ActionEntityDao(this).createAction().getConfigController();
+	}
+
+	@Override
+	public void syncWith(JAXBEntity entity) {
+		if (!(entity instanceof ActionEntity)) {
+			return;
+		}
+		
+		ActionEntity ac = (ActionEntity) entity;
+		
+		setTitle(ac.getTitle());
+		setActionProvider(ac.getActionProvider());
+		getActionProperties().clear();
+//		ac.getActionProperties().forEach((key, value) -> {
+//			actionPropertiesProperty().put(key, value);
+//		});
+		ac.getActionProperties().forEach(actionPropertiesProperty()::put);
 	}
 	
 	
