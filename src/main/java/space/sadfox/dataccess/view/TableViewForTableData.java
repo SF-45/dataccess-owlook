@@ -5,12 +5,14 @@ import java.awt.datatransfer.StringSelection;
 import java.util.Stack;
 
 import javafx.beans.InvalidationListener;
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.ReadOnlyStringProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.ContextMenu;
-import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TableColumn;
@@ -18,128 +20,149 @@ import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.text.Text;
-import javafx.scene.text.TextFlow;
 import space.sadfox.dataccess.dataccess.DataEntity;
-import space.sadfox.owlook.jaxb.ChangeListener;
 import space.sadfox.owlook.jaxb.EntityChangeListener;
 import space.sadfox.owlook.utils.StageFactory;
 
 public class TableViewForTableData extends TableView<DataEntity> {
-	
+
 	private final Stack<ObservableList<DataEntity>> historyFind = new Stack<>();
-    private ContextMenu contextMenu = new ContextMenu();
-    private MenuItem undo = new MenuItem("Undo");
-    private Menu showHideMenu = new Menu("Show/Hide");
-    private SimpleStringProperty historyFindText = new SimpleStringProperty("");
-    private SimpleStringProperty prefHistoryText = new SimpleStringProperty();
-    private SimpleStringProperty fullFindText = new SimpleStringProperty();
-    private SimpleIntegerProperty indProperty = new SimpleIntegerProperty();
-    
-    private TableDataView currentView;
-    private EntityChangeListener changeListener;
-     
-    
-    private Text selected = new Text("0");
-    private Text entityCount = new Text("0");
-    private TextFlow textFlow = new TextFlow();
+	private ObservableList<DataEntity> currentItems = FXCollections.observableArrayList();
+	private InvalidationListener searchChangeListener;
+	private StringProperty currentSearchText = new SimpleStringProperty("");
+	private StringProperty searchTextHistory = new SimpleStringProperty("");
+	private ObservableList<String> searchTextHistoryList = FXCollections.observableArrayList();
+	private final String SEARCH_HISTORY_DELIMMER = " -> ";
+
+	private ContextMenu contextMenu = new ContextMenu();
+	private MenuItem undo = new MenuItem("Undo");
+	private IntegerProperty indProperty = new SimpleIntegerProperty();
+
+	private TableDataView currentView;
+	private EntityChangeListener changeListener;
 
 	public TableViewForTableData() {
+
 		setContextMenu(contextMenu);
-        setEditable(true);
-        getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
-        
-        //TODO: начал делать счет элементов TableData
-        //textFlow.getChildren().addAll(selected, new Text("0"), entityCount);
-        //selected.textProperty().bind(this.getSelectionModel().selectedItemProperty());
-        
-        MenuItem copy = new MenuItem("Copy");
-        copy.setOnAction(e -> copyAction());
-        contextMenu.getItems().add(copy);
+		setEditable(true);
+		getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+		
+		this.setRowFactory(dataEntityTableView -> {
+			TableRow<DataEntity> row = new TableRow<>();
 
-        MenuItem copyAll = new MenuItem("CopyAll");
-        copyAll.setOnAction(e -> {
-            getSelectionModel().selectAll();
-            copyAction();
-        });
-        contextMenu.getItems().add(copyAll);
-        
-        MenuItem openInWindow = new MenuItem("Open in window");
-        openInWindow.setOnAction(e -> {
-            if (getSelectionModel().getSelectedItems().size() > 0) {
-                getSelectionModel().getSelectedItems().forEach(de -> {
-                    DataEntityViewer viewer = new DataEntityViewer(de);
-                    StageFactory.INSTANCE.registerStage(viewer);
-                    viewer.show();
-                });
-            }
-        });
-        contextMenu.getItems().add(openInWindow);
-        
-        undo.setVisible(false);
-        undo.setOnAction(e -> {
-            if (historyFind.size() == 0) return;
-            setItems(historyFind.pop());
-            if (historyFind.size() == 0) {
-                historyFindText.set("");
-                undo.setVisible(false);
-            } else {
-                String tabText = historyFindText.get();
-                historyFindText.set(tabText.substring(0, tabText.lastIndexOf(" -> ")));
-            }
-        });
-        getContextMenu().getItems().add(undo);
-        
-        InvalidationListener changeListener = prop -> {
-            fullFindText.set(prefHistoryText.get() + historyFindText.get());
-        };
-        historyFindText.addListener(changeListener);
-        prefHistoryText.addListener(changeListener);
-        
-        contextMenu.getItems().add(showHideMenu);
-        
+			row.setOnDragDetected(event -> {
+				if (!row.isEmpty() && event.isPrimaryButtonDown()) {
+					indProperty.set(row.getIndex());
+					row.startFullDrag();
+				}
+			});
+			row.setOnMouseDragOver(event -> {
+				getSelectionModel().clearSelection();
 
-        this.setRowFactory(dataEntityTableView -> {
-            TableRow<DataEntity> row = new TableRow<>();
+				int firstInd = indProperty.get();
+				int lastInd = row.getIndex();
+				TableView.TableViewSelectionModel<DataEntity> selection = getSelectionModel();
 
-            row.setOnDragDetected(event -> {
-                if (!row.isEmpty() && event.isPrimaryButtonDown()) {
-                    indProperty.set(row.getIndex());
-                    row.startFullDrag();
-                }
-            });
-            row.setOnMouseDragOver(event -> {
-                getSelectionModel().clearSelection();
+				if (firstInd < lastInd) {
+					selection.selectRange(firstInd, lastInd + 1);
+				} else if (firstInd > lastInd) {
+					selection.selectRange(firstInd, lastInd - 1);
+				} else {
+					selection.select(firstInd);
+				}
 
-                int firstInd = indProperty.get();
-                int lastInd = row.getIndex();
-                TableView.TableViewSelectionModel<DataEntity> selection = getSelectionModel();
+			});
+			return row;
+		});
 
-                if (firstInd < lastInd) {
-                    selection.selectRange(firstInd, lastInd + 1);
-                } else if (firstInd > lastInd) {
-                    selection.selectRange(firstInd, lastInd - 1);
-                } else {
-                    selection.select(firstInd);
-                }
-
-            });
-            return row;
-        });
-        
-        addEventHandler(KeyEvent.KEY_PRESSED, keyEvent -> {
-            switch (keyEvent.getCode()) {
-                case C:
-                    if (keyEvent.isControlDown()) {
-                        copyAction();
-                    }
+		addEventHandler(KeyEvent.KEY_PRESSED, keyEvent -> {
+			switch (keyEvent.getCode()) {
+			case C:
+				if (keyEvent.isControlDown()) {
+					copyAction();
+				}
 			default:
 				break;
-            }
-        });
-        
+			}
+		});
+		
+		
+		initContextMenu();
+		initSearch();
 	}
 	
+	
+	private void initContextMenu() {
+		MenuItem copy = new MenuItem("Copy");
+		copy.setOnAction(e -> copyAction());
+		contextMenu.getItems().add(copy);
+
+		MenuItem copyAll = new MenuItem("CopyAll");
+		copyAll.setOnAction(e -> {
+			getSelectionModel().selectAll();
+			copyAction();
+		});
+		contextMenu.getItems().add(copyAll);
+
+		MenuItem openInWindow = new MenuItem("Open in window");
+		openInWindow.setOnAction(e -> {
+			if (getSelectionModel().getSelectedItems().size() > 0) {
+				getSelectionModel().getSelectedItems().forEach(de -> {
+					DataEntityViewer viewer = new DataEntityViewer(de);
+					StageFactory.INSTANCE.registerStage(viewer);
+					viewer.show();
+				});
+			}
+		});
+		contextMenu.getItems().add(openInWindow);
+		
+		undo.setVisible(false);
+		undo.setOnAction(e -> {
+			if (historyFind.size() == 0) return;
+
+			currentItems = historyFind.pop();
+			
+			if (searchTextHistoryList.size() != 0) {
+				setCurrentSearchText(searchTextHistoryList.remove(searchTextHistoryList.size() - 1));
+			} else {
+				setCurrentSearchText("");
+			}
+
+			if (historyFind.size() == 0) {
+				undo.setVisible(false);
+			} else {
+
+			}
+		});
+		getContextMenu().getItems().add(undo);
+	}
+
+
+	private void initSearch() {
+		searchChangeListener = property -> {
+			historyFind.clear();
+			currentItems.clear();
+			currentItems.addAll(getItems());
+			searchTextHistoryList.clear();
+			currentSearchText.set("");
+		};
+		getItems().addListener(searchChangeListener);
+		itemsProperty().addListener((property, oldValue, newValue) -> {
+			oldValue.removeListener(searchChangeListener);
+			newValue.addListener(searchChangeListener);
+			searchChangeListener.invalidated(newValue);
+		});
+		searchTextHistoryList.addListener((InvalidationListener) change -> {
+			searchTextHistory.set(String.join(SEARCH_HISTORY_DELIMMER, searchTextHistoryList));
+		});
+		
+		currentSearchText.addListener((property, oldValue, newValue) -> {
+			if (oldValue != null && oldValue.equals(newValue)) return;
+			findAction(newValue);
+		});
+
+	}
+
 	public void setTableDataView(TableDataView tableDataView) {
 		if (currentView != null) {
 			currentView.removeEntityChangeListener(changeListener);
@@ -153,72 +176,84 @@ public class TableViewForTableData extends TableView<DataEntity> {
 		tableDataView.addEntityChangeListener(changeListener);
 		updateDataView();
 	}
-	
+
 	private void updateDataView() {
 		getColumns().clear();
 		currentView.getFieldViews().forEach(this::createColumn);
 	}
-	
+
 	private void createColumn(FieldView field) {
-        TableColumn<DataEntity, String> column = new TableColumn<>();
-        column.setVisible(field.getVisible());
-        column.setText(field.getFriendlyFieldName());
-        
-        //column.visibleProperty().bind(field.visibleProperty());
-        //column.textProperty().bind(field.friendlyFieldNameProperty());
+		TableColumn<DataEntity, String> column = new TableColumn<>();
+		column.setVisible(field.getVisible());
+		column.setText(field.getFriendlyFieldName());
 
-        column.setCellValueFactory(dataEntity -> new SimpleStringProperty(dataEntity.getValue().getValue(field.getFieldName())));
-        column.setCellFactory(teTableColumn -> new TextFieldTableCell<>());
+		// column.visibleProperty().bind(field.visibleProperty());
+		// column.textProperty().bind(field.friendlyFieldNameProperty());
 
-        getColumns().add(column);
-    }
-	
-	public void findAction(String findable) {
-        if (getItems() == null && getItems().size() == 0) return;
-        historyFind.push(getItems());
-        historyFindText.set(historyFindText.get() + " -> \'" + findable + "\'");
-        setItems(getItems().filtered(dataEntity -> dataEntity.findLike(findable)));
-        undo.setVisible(true);
-        refresh();
-    }
-	
-	public String getPrefHistoryText() {
-        return prefHistoryText.get();
-    }
-	
-	public void setPrefHistoryText(String prefHistoryText) {
-        this.prefHistoryText.set(prefHistoryText);
-    }
+		column.setCellValueFactory(
+				dataEntity -> new SimpleStringProperty(dataEntity.getValue().getValue(field.getFieldName())));
+		column.setCellFactory(teTableColumn -> new TextFieldTableCell<>());
 
-    public StringProperty prefHistoryTextProperty() {
-        return prefHistoryText;
-    }
-    
-    public String getFullFindText() {
-        return fullFindText.get();
-    }
+		getColumns().add(column);
+	}
 
-    public StringProperty fullFindTextProperty() {
-        return fullFindText;
-    }
+	private void findAction(String findable) {
+		getItems().removeListener(searchChangeListener);
+		if (findable == "" || findable == null) {
+			getItems().clear();
+			getItems().addAll(currentItems);
+		} else {
+			getItems().clear();
+			getItems().addAll(currentItems.filtered(dataEntity -> dataEntity.findLike(findable)));
+		}
+		getItems().addListener(searchChangeListener);
+		refresh();
+
+	}
+
+	public void nextFind() {
+		if (currentSearchText.get() == "") return;
+		historyFind.push(FXCollections.observableArrayList(currentItems));
+		currentItems.clear();
+		currentItems.addAll(getItems());
+		undo.setVisible(true);
+		searchTextHistoryList.add(currentSearchText.get());
+	}
 
 	private void copyAction() {
-	    StringBuilder builder = new StringBuilder();
-	    TableView.TableViewSelectionModel<DataEntity> selection = this.getSelectionModel();
-	    if (selection.getSelectedItems().size() == this.getItems().size()) {
-	        selection.getSelectedItem().getFields().forEach(field -> {
-	            builder.append(field.getFieldName() + '\t');
-	        });
-	        builder.append('\n');
-	    }
-	    selection.getSelectedItems().forEach(dataEntity -> {
-	        dataEntity.getFields().forEach(field -> builder.append(dataEntity.getValue(field) + '\t'));
-	        builder.append('\n');
-	    });
-	    Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(builder.toString()), null);
-	
+		StringBuilder builder = new StringBuilder();
+		TableView.TableViewSelectionModel<DataEntity> selection = this.getSelectionModel();
+		if (selection.getSelectedItems().size() == this.getItems().size()) {
+			selection.getSelectedItem().getFields().forEach(field -> {
+				builder.append(field.getFieldName() + '\t');
+			});
+			builder.append('\n');
+		}
+		selection.getSelectedItems().forEach(dataEntity -> {
+			dataEntity.getFields().forEach(field -> builder.append(dataEntity.getValue(field) + '\t'));
+			builder.append('\n');
+		});
+		Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(builder.toString()), null);
+
 	}
 	
+	public String getCurrentSearchText() {
+		return currentSearchText.get();
+	}
 	
+	public void setCurrentSearchText(String findable) {
+		currentSearchText.set(findable);
+	}
+	
+	public StringProperty currentSearchTextProperty() {
+		return currentSearchText;
+	}
+
+	public String getSearchTextHistory() {
+		return searchTextHistory.get();
+	}
+	public ReadOnlyStringProperty searchTextHistoryProperty() {
+		return searchTextHistory;
+	}
 
 }

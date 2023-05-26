@@ -23,8 +23,9 @@ import space.sadfox.owlook.utils.Nullable;
 @XmlRootElement
 public class ActionEntity extends JAXBEntity {
 
-	private StringProperty title = new SimpleStringProperty();
-	private StringProperty actionProvider = new SimpleStringProperty();
+	private StringProperty title = new SimpleStringProperty("");
+	private StringProperty description = new SimpleStringProperty("");
+	private StringProperty actionProvider = new SimpleStringProperty("");
 	private ObservableMap<String, StringProperty> actionProperties = FXCollections.observableHashMap();
 
 	@Override
@@ -39,6 +40,19 @@ public class ActionEntity extends JAXBEntity {
 
 	public StringProperty titleProperty() {
 		return title;
+	}
+	
+	@XmlElement(name = "description")
+	public String getDescription() {
+		return descriptionProperty().get();
+	}
+
+	public void setDescription(String description) {
+		descriptionProperty().set(description);
+	}
+
+	public StringProperty descriptionProperty() {
+		return description;
 	}
 
 	@XmlAttribute(name = "actionProvider")
@@ -70,7 +84,7 @@ public class ActionEntity extends JAXBEntity {
 
 	@Override
 	public List<Object> getProperties() {
-		return Arrays.asList(title, actionProvider, actionProperties);
+		return Arrays.asList(title, actionProvider, actionProperties, description);
 	}
 
 	public StringProperty getActionProperty(String key, String defaultValue) {
@@ -102,6 +116,9 @@ public class ActionEntity extends JAXBEntity {
 	public String toString() {
 		StringBuilder builder = new StringBuilder("Action: " + getTitle() + "\n");
 		builder.append("Action Provider: " + getActionProvider() + "\n\n");
+		
+		builder.append("Description: " + getDescription() + "\n\n");
+		
 		builder.append("Properties:\n");
 		
 		getActionProperties().forEach((key, value) -> {
@@ -113,7 +130,7 @@ public class ActionEntity extends JAXBEntity {
 
 	@Override
 	public Controller getConfigController() throws IOException, Nullable {
-		return new ActionEntityDao(this).createAction().getConfigController();
+		return new ActionEntityController(this);
 	}
 
 	@Override

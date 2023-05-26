@@ -18,7 +18,7 @@ module space.sadfox.dataccess {
 	opens space.sadfox.dataccess.dataccess to jakarta.xml.bind, javafx.fxml;
 	opens space.sadfox.dataccess.filter to jakarta.xml.bind, javafx.fxml;
 	opens space.sadfox.dataccess.view to jakarta.xml.bind, javafx.fxml;
-	opens space.sadfox.dataccess.action to jakarta.xml.bind;
+	opens space.sadfox.dataccess.action to jakarta.xml.bind, javafx.fxml;
 	
 	
 	provides Module with ModuleProvider;

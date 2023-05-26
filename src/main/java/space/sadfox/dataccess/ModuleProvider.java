@@ -36,4 +36,10 @@ public class ModuleProvider implements Module {
 		return Arrays.asList(ActionEntity.class, TableData.class, TableDataFilter.class, TableDataView.class);
 	}
 
+	@Override
+	public void initModule() {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

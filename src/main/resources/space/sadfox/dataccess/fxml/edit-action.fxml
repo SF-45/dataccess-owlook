@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+
+
+<BorderPane fx:id="rootBorderPane" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1">
+   <top>
+      <AnchorPane BorderPane.alignment="CENTER">
+         <children>
+            <TextField fx:id="titleTextBox" alignment="CENTER" text="title" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+            <TextArea fx:id="descriptionTextArea" layoutY="34.0" prefHeight="102.0" prefWidth="514.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="5.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="34.0" />
+         </children>
+      </AnchorPane>
+   </top>
+   <opaqueInsets>
+      <Insets />
+   </opaqueInsets>
+</BorderPane>

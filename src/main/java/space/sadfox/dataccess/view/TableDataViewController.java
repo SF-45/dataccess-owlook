@@ -24,6 +24,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.input.KeyEvent;
 import space.sadfox.dataccess.ResourceTarget;
+import space.sadfox.dataccess.dataccess.Field;
 import space.sadfox.dataccess.dataccess.TableData;
 import space.sadfox.owlook.ui.base.Controller;
 import space.sadfox.owlook.utils.Nullable;
@@ -41,6 +42,9 @@ public class TableDataViewController extends Controller {
 
 	@FXML
 	private TableView<FieldView> viewTable;
+	
+    @FXML
+    private Button copyAllFieldsButton;
 
 	@FXML
 	private TextField title;
@@ -89,6 +93,15 @@ public class TableDataViewController extends Controller {
 		add.setOnAction(event -> {
 			getTableDataViewDao().addNewField(TDField.getValue(), friendlyName.getText());
 		});
+		
+		try {
+			TableData tableData = getTableData();
+			copyAllFieldsButton.setDisable(false);
+			copyAllFieldsButton.setOnAction(event -> {
+				getTableDataViewDao().removeAllFieldViews();
+				tableData.getFields().forEach(getTableDataViewDao()::addNewField);
+			});
+		} catch (Nullable e) {}
 	}
 
 	@SuppressWarnings("unchecked")

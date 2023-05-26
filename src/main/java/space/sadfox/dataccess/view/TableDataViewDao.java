@@ -21,8 +21,20 @@ public class TableDataViewDao {
 		FieldView fieldView = new FieldView();
 		fieldView.setFieldName(dataField);
 		fieldView.setFriendlyFieldName(frendlyFieldName);
-		tableDataView.getFieldViews().add(fieldView);
+		getTableDataView().getFieldViews().add(fieldView);
 		return fieldView;
+	}
+	
+	public FieldView addNewField(Field field, String frendlyFieldName) {
+		return addNewField(field.getFieldName(), frendlyFieldName);
+	}
+	
+	public FieldView addNewField(Field field) {
+		return addNewField(field.getFieldName(), "");
+	}
+	
+	public void removeAllFieldViews() {
+		getTableDataView().getFieldViews().clear();
 	}
 
 	public static TableDataView createTableDataView() {
@@ -40,5 +52,9 @@ public class TableDataViewDao {
 	
 	public static TableDataView loadTableDataView(String fileName) throws IOException, JAXBException {
 		return EntityLoader.INSTANCE.loadEntity(fileName, TableDataView.class);
+	}
+	
+	public TableDataView getTableDataView() {
+		return tableDataView;
 	}
 }

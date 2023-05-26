@@ -119,7 +119,7 @@ public class TableDataController extends Controller {
 			FileChooser chooser = new FileChooser();
 			// chooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("XML",
 			// "*.xml"));
-			if (pathToDataTextField.getText() != null) {
+			if (pathToDataTextField.getText() != null && pathToDataTextField.getText() != "") {
 				Path pathToData = Path.of(pathToDataTextField.getText());
 				if (Files.exists(pathToData.getParent())) {
 					chooser.setInitialDirectory(pathToData.getParent().toFile());
