@@ -21,7 +21,6 @@ public class TableDataFilterDao {
 		this.tData = tableData;
 	}
 
-
 	public Filter addNewFilter(String field, Comparison comparison, String value, NextComp next) {
 		Filter filter = new Filter();
 		filter.setField(field);
@@ -40,8 +39,15 @@ public class TableDataFilterDao {
 
 		Iterator<Filter> iterator = filter.getFilters().iterator();
 
+		boolean open = false;
 		while (iterator.hasNext()) {
 			Filter filter = iterator.next();
+
+			if (iterator.hasNext() && filter.getNext().equals(NextComp.OR) && !open) {
+				sqlBulder.append("(");
+				open = true;
+			}
+
 			switch (filter.getComparision()) {
 			case EQUAL:
 				sqlBulder.append(filter.getField()).append(" = ").append("'" + filter.getValue() + "'");
@@ -55,14 +61,24 @@ public class TableDataFilterDao {
 			default:
 				break;
 			}
-			if (iterator.hasNext())
+			if (iterator.hasNext()) {
+				if (filter.getNext().equals(NextComp.AND) && open) {
+					sqlBulder.append(")");
+					open = false;
+				}
+
 				sqlBulder.append(" " + filter.getNext() + " ");
+			} else if (open) {
+				sqlBulder.append(")");
+				open = false;
+			}
+
 		}
 
 		return getTableDataDao().selectAllWhere(sqlBulder.toString());
 
 	}
-	
+
 	public static TableDataFilter createTableDataFilter() {
 		try {
 			return EntityLoader.INSTANCE.createEntity(TableDataFilter.class);
@@ -71,11 +87,11 @@ public class TableDataFilterDao {
 		}
 		return null;
 	}
-	
+
 	public static boolean deleteTableDataFiter(TableDataFilter tableDataFilter) {
 		return EntityLoader.INSTANCE.deleteEntity(tableDataFilter);
 	}
-	
+
 	public static TableDataFilter loadTableDataFilter(String fileName) throws IOException, JAXBException {
 		return EntityLoader.INSTANCE.loadEntity(fileName, TableDataFilter.class);
 	}
@@ -83,14 +99,13 @@ public class TableDataFilterDao {
 	public TableDataFilter getFilter() {
 		return filter;
 	}
-	
+
 	private TableData getTableData() {
 		return tData;
 	}
-	
+
 	private TableDataDao getTableDataDao() {
 		return new TableDataDao(getTableData());
 	}
-	
 
 }

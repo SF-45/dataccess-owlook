@@ -143,7 +143,7 @@ public class TableData extends JAXBEntity {
 		builder.append("Fields:\n");
 
 		for (Field field : getFields()) {
-			builder.append("\t" + field.getFieldName() + "\n");
+			builder.append("\t" + field.getFieldName() + " | " + field.getFriendlyFieldName() + "\n");
 
 			for (ParserFilter parserFilter : field.getParserFilters()) {
 				builder.append("\t\t" + parserFilter.getComparison() + " " + parserFilter.getValue() + "\n");

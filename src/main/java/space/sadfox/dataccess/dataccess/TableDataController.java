@@ -144,6 +144,15 @@ public class TableDataController extends Controller {
 			editEvent.getRowValue().setFieldName(editEvent.getNewValue());
 		});
 		fieldsTable.getColumns().add(fieldName);
+		
+		TableColumn<Field, String> friendlyFieldName = new TableColumn<>("Friendly Name");
+		friendlyFieldName.setEditable(true);
+		friendlyFieldName.setCellValueFactory(new PropertyValueFactory<>("friendlyFieldName"));
+		friendlyFieldName.setCellFactory(TextFieldTableCell.forTableColumn());
+		friendlyFieldName.setOnEditCommit(editEvent -> {
+			editEvent.getRowValue().setFriendlyFieldName(editEvent.getNewValue());
+		});
+		fieldsTable.getColumns().add(friendlyFieldName);
 
 		ObjectProperty<Field> draggedField = new SimpleObjectProperty<>();
 		IntegerProperty draggedInd = new SimpleIntegerProperty();

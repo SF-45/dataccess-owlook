@@ -136,15 +136,16 @@ public class TableDataDao {
 
 	public DataEntity[] selectAllWhere(String sql) {
 		try (DBHandler handler = new DBHandler(dataBasePath)) {
-
+			
 			if (sql == null)
 				sql = "";
 			if (!sql.equals("")) {
 				sql = " WHERE(" + sql + ")";
 			}
-
 			Statement statement = handler.getStatement();
+			System.out.println("SELECT * FROM " + tableName + sql);
 			ResultSet rezult = statement.executeQuery("SELECT * FROM " + tableName + sql);
+			
 			List<DataEntity> entities = new ArrayList<>();
 			while (rezult.next()) {
 				DataEntity entity = createDataEntity();

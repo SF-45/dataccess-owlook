@@ -14,6 +14,9 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.MenuButton;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
@@ -26,7 +29,9 @@ import javafx.scene.input.KeyEvent;
 import space.sadfox.dataccess.ResourceTarget;
 import space.sadfox.dataccess.dataccess.Field;
 import space.sadfox.dataccess.dataccess.TableData;
+import space.sadfox.dataccess.dataccess.TableDataController;
 import space.sadfox.owlook.ui.base.Controller;
+import space.sadfox.owlook.utils.ErrorLogger;
 import space.sadfox.owlook.utils.Nullable;
 
 public class TableDataViewController extends Controller {
@@ -42,9 +47,9 @@ public class TableDataViewController extends Controller {
 
 	@FXML
 	private TableView<FieldView> viewTable;
-	
+
     @FXML
-    private Button copyAllFieldsButton;
+    private MenuButton tableDataMenuButton;
 
 	@FXML
 	private TextField title;
@@ -60,8 +65,6 @@ public class TableDataViewController extends Controller {
 		this.view = view;
 		
 		init();
-		initViewTable();
-		initKeyBind();
 
 	}
 	
@@ -72,8 +75,6 @@ public class TableDataViewController extends Controller {
 		this.view = view;
 		
 		init();
-		initViewTable();
-		initKeyBind();
 
 	}
 
@@ -94,14 +95,11 @@ public class TableDataViewController extends Controller {
 			getTableDataViewDao().addNewField(TDField.getValue(), friendlyName.getText());
 		});
 		
-		try {
-			TableData tableData = getTableData();
-			copyAllFieldsButton.setDisable(false);
-			copyAllFieldsButton.setOnAction(event -> {
-				getTableDataViewDao().removeAllFieldViews();
-				tableData.getFields().forEach(getTableDataViewDao()::addNewField);
-			});
-		} catch (Nullable e) {}
+		initViewTable();
+		initTableDataMenuButton();
+		initKeyBind();
+		
+		
 	}
 
 	@SuppressWarnings("unchecked")
@@ -160,6 +158,61 @@ public class TableDataViewController extends Controller {
 
 			return row;
 		});
+	}
+	
+	private void initTableDataMenuButton() {
+		try {
+			TableData tableData = getTableData();
+			tableDataMenuButton.setDisable(false);
+			
+			MenuItem copyFields = new MenuItem("Copy All Fileds");
+			copyFields.setOnAction(event -> {
+				getTableDataViewDao().removeAllFieldViews();
+				tableData.getFields().forEach(getTableDataViewDao()::addNewField);
+			});
+			tableDataMenuButton.getItems().add(copyFields);
+			
+			MenuItem syncAllFieldNames = new MenuItem("Sync All Field Names");
+			syncAllFieldNames.setOnAction(event -> {
+				for (FieldView fieldView : getTableDataView().getFieldViews()) {
+					for (Field field : tableData.getFields()) {
+						if (field.getFieldName().equals(fieldView.getFieldName())) {
+							fieldView.setFriendlyFieldName(field.getFriendlyFieldName());
+							break;
+						}
+					}
+				}
+			});
+			tableDataMenuButton.getItems().add(syncAllFieldNames);
+			
+			MenuItem syncEmptyFieldNames = new MenuItem("Sync Empty Field Names");
+			syncEmptyFieldNames.setOnAction(event -> {
+				for (FieldView fieldView : getTableDataView().getFieldViews()) {
+					if (fieldView.getFriendlyFieldName() == null || fieldView.getFriendlyFieldName().equals("")) {
+						for (Field field : tableData.getFields()) {
+							if (field.getFieldName().equals(fieldView.getFieldName())) {
+								fieldView.setFriendlyFieldName(field.getFriendlyFieldName());
+								break;
+							}
+						}
+					}
+					
+				}
+			});
+			tableDataMenuButton.getItems().add(syncEmptyFieldNames);
+			
+			MenuItem editTableData = new MenuItem("Edit Table Data");
+			editTableData.setOnAction(event -> {
+				try {
+					new TableDataController(tableData).show();
+				} catch (IOException e) {
+					ErrorLogger.registerException(e);
+				}
+			});
+			tableDataMenuButton.getItems().add(new SeparatorMenuItem());
+			tableDataMenuButton.getItems().add(editTableData);
+		} catch (Nullable e) {
+		}
 	}
 
 	private void initKeyBind() {

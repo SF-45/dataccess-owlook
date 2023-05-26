@@ -185,7 +185,13 @@ public class TableViewForTableData extends TableView<DataEntity> {
 	private void createColumn(FieldView field) {
 		TableColumn<DataEntity, String> column = new TableColumn<>();
 		column.setVisible(field.getVisible());
-		column.setText(field.getFriendlyFieldName());
+		
+		if (field.getFriendlyFieldName() == null || field.getFriendlyFieldName().equals("")) {
+			column.setText(field.getFieldName());
+		} else {
+			column.setText(field.getFriendlyFieldName());
+		}
+		
 
 		// column.visibleProperty().bind(field.visibleProperty());
 		// column.textProperty().bind(field.friendlyFieldNameProperty());

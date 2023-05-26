@@ -18,6 +18,7 @@ import space.sadfox.owlook.moduleapi.ChangeHistoryKeeping;
 @XmlType
 public class Field implements ChangeHistoryKeeping {
 	private StringProperty fieldName;
+	private StringProperty friendlyFieldName;
 	private ObservableList<ParserFilter> parserFilters;
 
 	@XmlAttribute(name = "name")
@@ -31,9 +32,25 @@ public class Field implements ChangeHistoryKeeping {
 	
 	public StringProperty fieldNameProperty() {
 		if (fieldName == null) {
-			fieldName = new SimpleStringProperty();
+			fieldName = new SimpleStringProperty("");
 		}
 		return fieldName;
+	}
+	
+	@XmlAttribute(name = "friendlyName")
+	public String getFriendlyFieldName() {
+		return friendlyFieldNameProperty().get();
+	}
+
+	public void setFriendlyFieldName(String friendlyName) {
+		friendlyFieldNameProperty().set(friendlyName);
+	}
+	
+	public StringProperty friendlyFieldNameProperty() {
+		if (friendlyFieldName == null) {
+			friendlyFieldName = new SimpleStringProperty("");
+		}
+		return friendlyFieldName;
 	}
 	
 	@XmlElement(name = "filter")
@@ -58,7 +75,7 @@ public class Field implements ChangeHistoryKeeping {
 
 	@Override
 	public List<Object> getProperties() {
-		return Arrays.asList(fieldNameProperty(), parserFiltersProperty());
+		return Arrays.asList(fieldNameProperty(), parserFiltersProperty(), friendlyFieldNameProperty());
 	}
 
 }
