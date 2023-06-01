@@ -16,13 +16,17 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import space.sadfox.owlook.jaxb.EntityChangeListener;
 import space.sadfox.owlook.jaxb.JAXBEntity;
 import space.sadfox.owlook.ui.base.Controller;
-import space.sadfox.owlook.utils.Nullable;
 
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlRootElement
 public class TableData extends JAXBEntity {
+	
+	public static abstract class Change extends EntityChangeListener.Change  {
+		public abstract boolean wasDataUpdate();
+	}
 
 	private StringProperty title;
 
@@ -131,7 +135,10 @@ public class TableData extends JAXBEntity {
 	}
 
 	@Override
-	public void validate() {
+	public void validate() {}
+	
+	void notifyTableDataEntityChangeListeners(TableData.Change change) {
+		super.notifyEntityChangeListeners(change);
 	}
 
 	@Override

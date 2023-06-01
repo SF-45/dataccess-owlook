@@ -80,6 +80,24 @@ public class TableDataDao {
 				}
 
 			}
+			
+			getTableData().notifyTableDataEntityChangeListeners(new TableData.Change() {
+				
+				@Override
+				public boolean wasRemoved() {
+					return false;
+				}
+				
+				@Override
+				public boolean wasModify() {
+					return false;
+				}
+				
+				@Override
+				public boolean wasDataUpdate() {
+					return true;
+				}
+			});
 		} catch (SQLException | ParserConfigurationException e) {
 			ErrorLogger.registerException(e);
 		}
