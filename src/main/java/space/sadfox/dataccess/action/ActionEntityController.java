@@ -9,7 +9,9 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
 import space.sadfox.dataccess.ResourceTarget;
+import space.sadfox.dataccess.dataccess.TableData;
 import space.sadfox.owlook.ui.base.Controller;
+import space.sadfox.owlook.utils.Nullable;
 
 public class ActionEntityController extends Controller {
 	
@@ -24,11 +26,22 @@ public class ActionEntityController extends Controller {
     
     private ActionEntity actionEntity;
     private ActionEntityDao actionEntityDao;
+    
+    private TableData tableData;
 
 	public ActionEntityController(ActionEntity actionEntity) throws IOException {
 		super(ResourceTarget.class.getResource("fxml/edit-action.fxml"));
 		
 		this.actionEntity = actionEntity;
+		
+		init();
+	}
+	
+	public ActionEntityController(ActionEntity actionEntity, TableData tableData) throws IOException {
+		super(ResourceTarget.class.getResource("fxml/edit-action.fxml"));
+		
+		this.actionEntity = actionEntity;
+		this.tableData = tableData;
 		
 		init();
 	}
@@ -53,9 +66,21 @@ public class ActionEntityController extends Controller {
 
 	private ActionEntityDao getActionEntityDao() {
 		if (actionEntityDao == null) {
-			actionEntityDao = new ActionEntityDao(getActionEntity());
+			try {
+				actionEntityDao = new ActionEntityDao(getActionEntity(), getTableData());
+			} catch (Nullable e) {
+				actionEntityDao = new ActionEntityDao(getActionEntity());
+			}
 		}
 		return actionEntityDao;
+	}
+	
+	private TableData getTableData() throws Nullable {
+		if (tableData == null) {
+			throw new Nullable();
+		}
+		
+		return tableData;
 	}
 	
 	

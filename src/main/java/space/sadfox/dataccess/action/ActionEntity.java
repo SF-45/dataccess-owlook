@@ -15,6 +15,8 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableMap;
+import space.sadfox.dataccess.dataccess.TableData;
+import space.sadfox.owlook.jaxb.ControllerNotDefined;
 import space.sadfox.owlook.jaxb.JAXBEntity;
 import space.sadfox.owlook.ui.base.Controller;
 import space.sadfox.owlook.utils.Nullable;
@@ -129,8 +131,12 @@ public class ActionEntity extends JAXBEntity {
 	}
 
 	@Override
-	public Controller getConfigController() throws IOException, Nullable {
+	public Controller getConfigController() throws IOException {
 		return new ActionEntityController(this);
+	}
+	
+	public Controller getConfigController(TableData tableData) throws IOException {
+		return new ActionEntityController(this, tableData);
 	}
 
 	@Override

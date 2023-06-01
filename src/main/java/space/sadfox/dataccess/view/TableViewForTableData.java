@@ -2,6 +2,7 @@ package space.sadfox.dataccess.view;
 
 import java.awt.Toolkit;
 import java.awt.datatransfer.StringSelection;
+import java.util.List;
 import java.util.Stack;
 
 import javafx.beans.InvalidationListener;
@@ -11,10 +12,13 @@ import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
+import javafx.collections.ListChangeListener.Change;
 import javafx.collections.ObservableList;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SelectionMode;
+import javafx.scene.control.SortEvent;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
@@ -28,7 +32,7 @@ public class TableViewForTableData extends TableView<DataEntity> {
 
 	private final Stack<ObservableList<DataEntity>> historyFind = new Stack<>();
 	private ObservableList<DataEntity> currentItems = FXCollections.observableArrayList();
-	private InvalidationListener searchChangeListener;
+	private ListChangeListener<DataEntity> searchChangeListener;
 	private StringProperty currentSearchText = new SimpleStringProperty("");
 	private StringProperty searchTextHistory = new SimpleStringProperty("");
 	private ObservableList<String> searchTextHistoryList = FXCollections.observableArrayList();
@@ -139,18 +143,20 @@ public class TableViewForTableData extends TableView<DataEntity> {
 
 
 	private void initSearch() {
-		searchChangeListener = property -> {
-			historyFind.clear();
-			currentItems.clear();
-			currentItems.addAll(getItems());
-			searchTextHistoryList.clear();
-			currentSearchText.set("");
+		searchChangeListener = change -> {
+			while (change.next()) {
+				if (change.wasAdded() || change.wasRemoved()) {
+					itemsChangeAction();
+				}
+			}
 		};
+		
 		getItems().addListener(searchChangeListener);
 		itemsProperty().addListener((property, oldValue, newValue) -> {
 			oldValue.removeListener(searchChangeListener);
 			newValue.addListener(searchChangeListener);
-			searchChangeListener.invalidated(newValue);
+			itemsChangeAction();
+			
 		});
 		searchTextHistoryList.addListener((InvalidationListener) change -> {
 			searchTextHistory.set(String.join(SEARCH_HISTORY_DELIMMER, searchTextHistoryList));
@@ -160,7 +166,7 @@ public class TableViewForTableData extends TableView<DataEntity> {
 			if (oldValue != null && oldValue.equals(newValue)) return;
 			findAction(newValue);
 		});
-
+		
 	}
 
 	public void setTableDataView(TableDataView tableDataView) {
@@ -241,6 +247,14 @@ public class TableViewForTableData extends TableView<DataEntity> {
 		});
 		Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(builder.toString()), null);
 
+	}
+	
+	private void itemsChangeAction() {
+		historyFind.clear();
+		currentItems.clear();
+		currentItems.addAll(getItems());
+		searchTextHistoryList.clear();
+		currentSearchText.set("");
 	}
 	
 	public String getCurrentSearchText() {

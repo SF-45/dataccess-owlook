@@ -80,7 +80,7 @@ public class TableDataView extends JAXBEntity {
 	}
 
 	@Override
-	public Controller getConfigController() throws IOException, Nullable {
+	public Controller getConfigController() throws IOException{
 		return new TableDataViewController(this);
 	}
 	

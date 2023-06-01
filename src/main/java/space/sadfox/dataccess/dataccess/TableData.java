@@ -154,7 +154,7 @@ public class TableData extends JAXBEntity {
 	}
 
 	@Override
-	public Controller getConfigController() throws IOException, Nullable {
+	public Controller getConfigController() throws IOException {
 		return new TableDataController(this);
 	}
 

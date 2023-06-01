@@ -81,7 +81,7 @@ public class TableDataFilter extends JAXBEntity implements ChangeHistoryKeeping 
 	}
 
 	@Override
-	public Controller getConfigController() throws IOException, Nullable {
+	public Controller getConfigController() throws IOException {
 		return new TableDataFilterController(this);
 	}
 	
