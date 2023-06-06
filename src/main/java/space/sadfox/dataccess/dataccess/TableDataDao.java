@@ -81,7 +81,7 @@ public class TableDataDao {
 
 			}
 			
-			getTableData().notifyTableDataEntityChangeListeners(new TableData.Change() {
+			getTableData().notifyTableDataChangeListeners(new TableData.Change() {
 				
 				@Override
 				public boolean wasRemoved() {
