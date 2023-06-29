@@ -135,7 +135,8 @@ public class TableData extends JAXBEntity {
 	}
 
 	@Override
-	public void validate() {}
+	public void validate() {
+	}
 	
 	void notifyTableDataChangeListeners(TableData.Change change) {
 		super.notifyEntityChangeListeners(change);

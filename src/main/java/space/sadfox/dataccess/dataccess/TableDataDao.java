@@ -18,16 +18,20 @@ import space.sadfox.owlook.utils.ModuleLoader;
 
 public class TableDataDao {
 
-	private TableData tData;
+	private TableData tableData;
 	private Path dataBasePath;
 
 	String tableName;
 
 	public TableDataDao(TableData tableData) {
-		this.tData = tableData;
+		this.tableData = tableData;
 		Path tPath = tableData.getPath();
+		
+		//TODO: После выноса пути за пределы tableData, тут нужно поправить
 		tableName = "table_" + tableData.getFileName();
-		dataBasePath = tPath.getParent().resolve(tPath.getFileName().toString());
+		
+//		dataBasePath = tPath.getParent().resolve(tPath.getFileName().toString());
+		dataBasePath = tableData.getResourcesPath().resolve("database");
 	}
 
 	public DataEntity createDataEntity() {
@@ -195,7 +199,7 @@ public class TableDataDao {
 	}
 
 	public TableData getTableData() {
-		return tData;
+		return tableData;
 	}
 
 }
