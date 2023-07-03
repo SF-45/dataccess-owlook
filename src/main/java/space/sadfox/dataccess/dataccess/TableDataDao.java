@@ -53,18 +53,14 @@ public class TableDataDao {
 		return EntityLoader.INSTANCE.deleteEntity(tableData);
 	}
 
-	public static TableData loadTableData(String fileName) throws IOException, JAXBException {
-		return EntityLoader.INSTANCE.loadEntity(fileName, TableData.class);
+	public static TableData loadTableData(String fielName) throws IOException, JAXBException {
+		return EntityLoader.INSTANCE.loadEntity(fielName, TableData.class);
 	}
 
-	public static List<TableData> loadAllTableDatas() {
+	public static List<TableData> loadAllTableDatas() throws IOException {
 		List<TableData> tableDatas = EntityLoader.INSTANCE.loadAllEntities(TableData.class);
 		return tableDatas;
 
-	}
-	
-	public static boolean existTableData(String fileName) {
-		return EntityLoader.INSTANCE.entityExist(fileName, TableData.class);
 	}
 
 	public void loadData() {

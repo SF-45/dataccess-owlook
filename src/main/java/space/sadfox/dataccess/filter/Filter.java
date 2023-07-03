@@ -20,6 +20,17 @@ public class Filter implements ChangeHistoryKeeping {
 	private StringProperty value = new SimpleStringProperty();
 	private ObjectProperty<NextComp> next = new SimpleObjectProperty<>();
 
+	public Filter() {
+		
+	}
+	
+	public Filter(String field, Comparison comparison, String value, NextComp nextComp) {
+		setField(field);
+		setComparision(comparison);
+		setValue(value);
+		setNext(nextComp);
+	}
+	
 	@XmlAttribute
 	public String getField() {
 		return field.get();

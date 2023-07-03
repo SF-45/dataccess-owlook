@@ -50,7 +50,6 @@ public class TableDataFilterController extends Controller {
 	private TextField valueTextBox;
 
 	private TableDataFilter filter;
-	private TableDataFilterDao filterDao;
 	private TableData tableData;
 	private ObjectProperty<NextComp> currectComp = new SimpleObjectProperty<>(NextComp.AND);
 
@@ -101,17 +100,12 @@ public class TableDataFilterController extends Controller {
 		addto.getItems().addAll(and, or);
 		addto.setText(currectComp.get().toString());
 		addto.setOnAction(event -> {
-			try {
-				geTableDataFilterDao().addNewFilter(dateFieldComboBox.getValue(), compareComboBox.getValue(),
-						valueTextBox.getText(), currectComp.get());
-			} catch (Nullable e) {
-				Filter newFilter = new Filter();
-				newFilter.setField(dateFieldComboBox.getValue());
-				newFilter.setComparision(compareComboBox.getValue());
-				newFilter.setValue(valueTextBox.getText());
-				newFilter.setNext(currectComp.get());
-				getTableDataFilter().getFilters().add(newFilter);
-			}
+			Filter newFilter = new Filter();
+			newFilter.setField(dateFieldComboBox.getValue());
+			newFilter.setComparision(compareComboBox.getValue());
+			newFilter.setValue(valueTextBox.getText());
+			newFilter.setNext(currectComp.get());
+			getTableDataFilter().getFilters().add(newFilter);
 		});
 	}
 
@@ -220,14 +214,6 @@ public class TableDataFilterController extends Controller {
 
 	private TableDataFilter getTableDataFilter() {
 		return filter;
-	}
-
-	private TableDataFilterDao geTableDataFilterDao() throws Nullable {
-		if (filterDao == null) {
-			filterDao = new TableDataFilterDao(getTableDataFilter(), getTableData());
-		}
-
-		return filterDao;
 	}
 
 	private ObservableList<String> getTableDataFields() throws Nullable {

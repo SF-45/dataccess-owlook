@@ -10,6 +10,7 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
+import space.sadfox.dataccess.dataccess.Field;
 import space.sadfox.owlook.moduleapi.ChangeHistoryKeeping;
 
 @XmlAccessorType(XmlAccessType.NONE)
@@ -19,6 +20,20 @@ public class FieldView implements ChangeHistoryKeeping {
 	private StringProperty friendlyFieldName = new SimpleStringProperty();
 	private BooleanProperty visible = new SimpleBooleanProperty(true);
 	
+	public FieldView() {}
+	
+	public FieldView(String fieldName) {
+		setFieldName(fieldName);
+	}
+	
+	public FieldView(String fieldName, String friendlyFieldName) {
+		setFieldName(fieldName);
+		setFriendlyFieldName(friendlyFieldName);
+	}
+	
+	public FieldView(Field field) {
+		setFieldName(field.getFieldName());
+	}
 	
 	@XmlAttribute(name = "FieldName")
 	public String getFieldName() {

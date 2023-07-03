@@ -56,7 +56,6 @@ public class TableDataViewController extends Controller {
 
 	private TableData tableData;
 	private TableDataView view;
-	private TableDataViewDao viewDao;
 
 	public TableDataViewController(TableDataView view, TableData tableData) throws IOException {
 		super(ResourceTarget.class.getResource("fxml/edit-view.fxml"));
@@ -92,7 +91,7 @@ public class TableDataViewController extends Controller {
 		
 
 		add.setOnAction(event -> {
-			getTableDataViewDao().addNewField(TDField.getValue(), friendlyName.getText());
+			getTableDataView().getFieldViews().add(new FieldView(TDField.getValue(), friendlyName.getText()));
 		});
 		
 		initViewTable();
@@ -167,8 +166,8 @@ public class TableDataViewController extends Controller {
 			
 			MenuItem copyFields = new MenuItem("Copy All Fileds");
 			copyFields.setOnAction(event -> {
-				getTableDataViewDao().removeAllFieldViews();
-				tableData.getFields().forEach(getTableDataViewDao()::addNewField);
+				getTableDataView().getFieldViews().clear();
+				tableData.getFields().forEach(FieldView::new);
 			});
 			tableDataMenuButton.getItems().add(copyFields);
 			
@@ -251,13 +250,6 @@ public class TableDataViewController extends Controller {
 
 	private TableDataView getTableDataView() {
 		return view;
-	}
-
-	private TableDataViewDao getTableDataViewDao() {
-		if (viewDao == null) {
-			viewDao = new TableDataViewDao(getTableDataView());
-		}
-		return viewDao;
 	}
 
 	private ObservableList<String> getTableDataFields() throws Nullable {
