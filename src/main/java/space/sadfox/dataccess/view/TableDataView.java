@@ -94,12 +94,19 @@ public class TableDataView extends JAXBEntity {
 			return;
 		}
 		
-		TableDataView v = (TableDataView) entity;
+		TableDataView targetView = (TableDataView) entity;
 		
-		setTitle(v.getTitle());
+		setTitle(targetView.getTitle());
+		
 		getFieldViews().clear();
-		getFieldViews().addAll(v.getFieldViews());
-		
+		targetView.getFieldViews().forEach(targetFieldView -> {
+			FieldView newFieldView = new FieldView();
+			newFieldView.setFieldName(targetFieldView.getFieldName());
+			newFieldView.setFriendlyFieldName(targetFieldView.getFriendlyFieldName());
+			newFieldView.setVisible(targetFieldView.getVisible());
+			
+			getFieldViews().add(newFieldView);
+		});
 	}
 	
 	

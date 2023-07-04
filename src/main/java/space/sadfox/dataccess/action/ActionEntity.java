@@ -150,9 +150,6 @@ public class ActionEntity extends JAXBEntity {
 		setTitle(ac.getTitle());
 		setActionProvider(ac.getActionProvider());
 		getActionProperties().clear();
-//		ac.getActionProperties().forEach((key, value) -> {
-//			actionPropertiesProperty().put(key, value);
-//		});
 		ac.getActionProperties().forEach(actionPropertiesProperty()::put);
 	}
 	

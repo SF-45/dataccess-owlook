@@ -95,11 +95,20 @@ public class TableDataFilter extends JAXBEntity implements ChangeHistoryKeeping 
 			return;
 		}
 		
-		TableDataFilter f = (TableDataFilter) entity;
+		TableDataFilter targetFilter = (TableDataFilter) entity;
 		
-		setTitle(f.getTitle());
+		setTitle(targetFilter.getTitle());
+		
 		getFilters().clear();
-		getFilters().addAll(f.getFilters());
+		targetFilter.getFilters().forEach(targerF -> {
+			Filter newFilter = new Filter();
+			newFilter.setComparision(targerF.getComparision());
+			newFilter.setField(targerF.getField());
+			newFilter.setNext(targerF.getNext());
+			newFilter.setValue(targerF.getValue());
+			
+			getFilters().add(newFilter);
+		});
 	}
 	
 	

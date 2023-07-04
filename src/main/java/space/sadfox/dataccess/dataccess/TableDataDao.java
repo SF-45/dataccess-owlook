@@ -67,9 +67,7 @@ public class TableDataDao {
 		try (DBHandler handler = new DBHandler(dataBasePath)) {
 			Statement statement = handler.getStatement();
 			createNewTable(statement);
-			ParserProvider parser = getParserProvider();
-			if (parser == null)
-				throw new ParserConfigurationException("Parser provider not found");
+			ParserProvider parser = getTableData().getParserSafe();
 			List<DataEntity> data = parser.parse(getTableData());
 
 			for (DataEntity entity : data) {
@@ -98,7 +96,7 @@ public class TableDataDao {
 					return true;
 				}
 			});
-		} catch (SQLException | ParserConfigurationException e) {
+		} catch (SQLException | ParserProviderNotFound e) {
 			ErrorLogger.registerException(e);
 		}
 
@@ -179,19 +177,6 @@ public class TableDataDao {
 			ErrorLogger.registerException(e);
 		}
 		return new DataEntity[0];
-	}
-
-	public ParserProvider getParserProvider() {
-		for (ParserProvider p : getParserProviders()) {
-			if (getTableData().getParser().equals(p.getIdentifier())) {
-				return p;
-			}
-		}
-		return null;
-	}
-
-	public static List<ParserProvider> getParserProviders() {
-		return ModuleLoader.INSTANCE.loadModuleExtension(ParserProvider.class, m -> m instanceof ParserProvider);
 	}
 
 	public TableData getTableData() {

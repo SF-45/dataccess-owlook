@@ -72,9 +72,16 @@ public class TableDataController extends Controller {
 		initParserFilterTable();
 
 		fieldsTable.setItems(getTableData().fieldsProperty());
-		parserChoiseBox.setItems(FXCollections.observableList(getTableDataDao().getParserProviders()));
-		if (parserChoiseBox.getItems().size() > 0) {
-			parserChoiseBox.getSelectionModel().select(0);
+		parserChoiseBox.setItems(FXCollections.observableList(TableDatas.getParserProviders()));
+		try {
+			ParserProvider selectProvider = getTableData().getParserSafe();
+			for (ParserProvider provider : parserChoiseBox.getItems()) {
+				if (provider.getModuleExtensionName().equals(selectProvider.getModuleExtensionName())) {
+					parserChoiseBox.getSelectionModel().select(provider);
+					break;
+				}
+			}
+		} catch (ParserProviderNotFound e) {
 		}
 
 	}
@@ -109,7 +116,7 @@ public class TableDataController extends Controller {
 		parserChoiseBox.getSelectionModel().selectedItemProperty().addListener((property, oldValue, newValue) -> {
 			if (oldValue == newValue)
 				return;
-			getTableData().setParser(newValue.getIdentifier());
+			getTableData().setParser(newValue);
 		});
 
 		configParser.setOnAction(event -> parserChoiseBox.getSelectionModel().getSelectedItem()
@@ -144,7 +151,7 @@ public class TableDataController extends Controller {
 			editEvent.getRowValue().setFieldName(editEvent.getNewValue());
 		});
 		fieldsTable.getColumns().add(fieldName);
-		
+
 		TableColumn<Field, String> friendlyFieldName = new TableColumn<>("Friendly Name");
 		friendlyFieldName.setEditable(true);
 		friendlyFieldName.setCellValueFactory(new PropertyValueFactory<>("friendlyFieldName"));

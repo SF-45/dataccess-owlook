@@ -10,8 +10,11 @@ import jakarta.xml.bind.annotation.XmlAttribute;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlElementWrapper;
 import jakarta.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
@@ -34,7 +37,7 @@ public class TableData extends JAXBEntity {
 
 	private BooleanProperty autoUpdate;
 
-	private StringProperty parser;
+	private final ObjectProperty<ParserProvider> parser = new SimpleObjectProperty<>();
 
 	private ObservableList<Field> fields;
 
@@ -56,18 +59,23 @@ public class TableData extends JAXBEntity {
 	}
 
 	@XmlAttribute(name = "parser")
-	public String getParser() {
-		return parserProperty().get();
+	@XmlJavaTypeAdapter(ParserProviderAdapter.class)
+	public ParserProvider getParser() {
+		return parser.get();
 	}
-
-	public void setParser(String parser) {
-		parserProperty().set(parser);
-	}
-
-	public StringProperty parserProperty() {
-		if (parser == null) {
-			parser = new SimpleStringProperty();
+	
+	public ParserProvider getParserSafe() throws ParserProviderNotFound {
+		if (parser.get() == null) {
+			throw new ParserProviderNotFound();
 		}
+		return parser.get();
+	}
+
+	public void setParser(ParserProvider parser) {
+		this.parser.set(parser);
+	}
+
+	public ObjectProperty<ParserProvider> parserProperty() {
 		return parser;
 	}
 
@@ -145,7 +153,11 @@ public class TableData extends JAXBEntity {
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder("TableData: " + getTitle() + "\n");
-		builder.append("Parser: " + getParser() + "\n");
+		try {
+			builder.append("Parser: " + getParserSafe().getIdentifier() + "\n");
+		} catch (ParserProviderNotFound e) {
+			builder.append("Parser: Indefined\n");
+		}
 		builder.append("Path To Data: [" + getPathToData() + "]\n");
 		builder.append("Auto Update: " + getAutoUpdate() + "\n");
 		builder.append("Fields:\n");
@@ -177,10 +189,24 @@ public class TableData extends JAXBEntity {
 		setTitle(newTableData.getTitle());
 		setPathToData(newTableData.getPathToData());
 		setAutoUpdate(newTableData.getAutoUpdate());
-		setParser(newTableData.getParser());
+
 		getFields().clear();
-		getFields().addAll(newTableData.getFields());
-		
+		newTableData.getFields().forEach(field -> {
+			Field newField = new Field();
+			
+			newField.setFieldName(field.getFieldName());
+			newField.setFriendlyFieldName(field.getFriendlyFieldName());
+			
+			field.getParserFilters().forEach(parserFilter -> {
+				ParserFilter newParserFilter = new ParserFilter();
+				
+				newParserFilter.setComparison(parserFilter.getComparison());
+				newParserFilter.setValue(parserFilter.getValue());
+				newField.getParserFilters().add(newParserFilter);
+			});
+			
+			getFields().add(newField);
+		});
 
 	}
 
