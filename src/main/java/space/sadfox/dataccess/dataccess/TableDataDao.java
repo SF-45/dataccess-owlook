@@ -28,10 +28,10 @@ public class TableDataDao {
 		Path tPath = tableData.getPath();
 		
 		//TODO: После выноса пути за пределы tableData, тут нужно поправить
-		tableName = "table_" + tableData.getFileName();
+		tableName = "tableData";
 		
 //		dataBasePath = tPath.getParent().resolve(tPath.getFileName().toString());
-		dataBasePath = tableData.getResourcesPath().resolve("database");
+		dataBasePath = tableData.getResourcesPath().resolve("TableDataDB");
 	}
 
 	public DataEntity createDataEntity() {
