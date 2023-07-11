@@ -4,14 +4,14 @@ import java.io.IOException;
 
 import jakarta.xml.bind.JAXBException;
 import space.sadfox.owlook.jaxb.EntityLoader;
-import space.sadfox.owlook.utils.ErrorLogger;
+import space.sadfox.owlook.utils.OwlLogger;
 
 public class TableDataViews {
 	public static TableDataView createTableDataView() {
 		try {
 			return EntityLoader.INSTANCE.createEntity(TableDataView.class);
 		} catch (JAXBException | IOException e) {
-			ErrorLogger.registerException(e);
+			OwlLogger.registerException(1, e);
 		}
 		return null;
 	}

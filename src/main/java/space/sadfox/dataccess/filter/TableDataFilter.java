@@ -57,11 +57,6 @@ public class TableDataFilter extends JAXBEntity implements ChangeHistoryKeeping 
 	}
 
 	@Override
-	public String getExtension() {
-		return ".tdatafilter";
-	}
-
-	@Override
 	public void initialize() {
 
 	}

@@ -16,10 +16,8 @@ import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableMap;
 import space.sadfox.dataccess.dataccess.TableData;
-import space.sadfox.owlook.jaxb.ControllerNotDefined;
 import space.sadfox.owlook.jaxb.JAXBEntity;
 import space.sadfox.owlook.ui.base.Controller;
-import space.sadfox.owlook.utils.Nullable;
 
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlRootElement
@@ -97,12 +95,6 @@ public class ActionEntity extends JAXBEntity {
 			actionProperties.put(key, defaultValueProperty);
 			return defaultValueProperty;
 		}
-	}
-
-	@Override
-	public String getExtension() {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 	@Override

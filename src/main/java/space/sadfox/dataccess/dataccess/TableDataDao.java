@@ -1,20 +1,17 @@
 package space.sadfox.dataccess.dataccess;
 
-import java.io.IOException;
 import java.nio.file.Path;
+import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.xml.parsers.ParserConfigurationException;
-
-import jakarta.xml.bind.JAXBException;
 import space.sadfox.dataccess.dataccess.core.DBHandler;
-import space.sadfox.owlook.jaxb.EntityLoader;
-import space.sadfox.owlook.utils.ErrorLogger;
-import space.sadfox.owlook.utils.ModuleLoader;
+import space.sadfox.owlook.logger.LogLevel;
+import space.sadfox.owlook.utils.LoggerMessage;
+import space.sadfox.owlook.utils.OwlLogger;
 
 public class TableDataDao {
 
@@ -26,41 +23,13 @@ public class TableDataDao {
 	public TableDataDao(TableData tableData) {
 		this.tableData = tableData;
 		Path tPath = tableData.getPath();
-		
-		//TODO: После выноса пути за пределы tableData, тут нужно поправить
-		tableName = "tableData";
-		
-//		dataBasePath = tPath.getParent().resolve(tPath.getFileName().toString());
+
+		tableName = "TABLEDATA";
 		dataBasePath = tableData.getResourcesPath().resolve("TableDataDB");
 	}
 
 	public DataEntity createDataEntity() {
 		return new DataEntity(getTableData().getFields());
-	}
-
-	public static TableData createTableData() {
-		try {
-			TableData tableData = EntityLoader.INSTANCE.createEntity(TableData.class);
-			tableData.setTitle("New Table Data");
-			return tableData;
-		} catch (JAXBException | IOException e) {
-			ErrorLogger.registerException(e);
-		}
-		return null;
-	}
-
-	public static boolean deleteTableData(TableData tableData) {
-		return EntityLoader.INSTANCE.deleteEntity(tableData);
-	}
-
-	public static TableData loadTableData(String fielName) throws IOException, JAXBException {
-		return EntityLoader.INSTANCE.loadEntity(fielName, TableData.class);
-	}
-
-	public static List<TableData> loadAllTableDatas() throws IOException {
-		List<TableData> tableDatas = EntityLoader.INSTANCE.loadAllEntities(TableData.class);
-		return tableDatas;
-
 	}
 
 	public void loadData() {
@@ -74,30 +43,30 @@ public class TableDataDao {
 				try {
 					insertDataEntity(entity, statement);
 				} catch (SQLException e) {
-					ErrorLogger.registerException(e);
+					OwlLogger.registerException(1, e);
 				}
 
 			}
-			
+
 			getTableData().notifyTableDataChangeListeners(new TableData.Change() {
-				
+
 				@Override
 				public boolean wasRemoved() {
 					return false;
 				}
-				
+
 				@Override
 				public boolean wasModify() {
 					return false;
 				}
-				
+
 				@Override
 				public boolean wasDataUpdate() {
 					return true;
 				}
 			});
 		} catch (SQLException | ParserProviderNotFound e) {
-			ErrorLogger.registerException(e);
+			OwlLogger.registerException(1, e);
 		}
 
 	}
@@ -150,9 +119,30 @@ public class TableDataDao {
 		return selectAllWhere("");
 	}
 
+	private boolean existData(Connection connection) {
+		try {
+			ResultSet rset = connection.getMetaData().getTables(null, "PUBLIC", tableName, null);
+			while (rset.next()) {
+				return true;
+			}
+		} catch (SQLException e) {
+			OwlLogger.registerException(2, e);
+		}
+		return false;
+
+	}
+
 	public DataEntity[] selectAllWhere(String sql) {
 		try (DBHandler handler = new DBHandler(dataBasePath)) {
 			
+			if (!existData(handler.getConnection())) {
+				LoggerMessage message = new LoggerMessage(LogLevel.INFO);
+				message.setName("Try select not load data");
+				message.setMessage("sql = [" + sql + "]");
+				OwlLogger.registerMessage(message);
+				return new DataEntity[0];
+			}
+
 			if (sql == null)
 				sql = "";
 			if (!sql.equals("")) {
@@ -161,7 +151,7 @@ public class TableDataDao {
 			Statement statement = handler.getStatement();
 			System.out.println("SELECT * FROM " + tableName + sql);
 			ResultSet rezult = statement.executeQuery("SELECT * FROM " + tableName + sql);
-			
+
 			List<DataEntity> entities = new ArrayList<>();
 			while (rezult.next()) {
 				DataEntity entity = createDataEntity();
@@ -174,7 +164,7 @@ public class TableDataDao {
 			}
 			return entities.toArray(new DataEntity[0]);
 		} catch (SQLException e) {
-			ErrorLogger.registerException(e);
+			OwlLogger.registerException(1, e);
 		}
 		return new DataEntity[0];
 	}

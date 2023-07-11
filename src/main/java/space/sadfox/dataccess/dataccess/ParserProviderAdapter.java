@@ -1,8 +1,9 @@
 package space.sadfox.dataccess.dataccess;
 
 import jakarta.xml.bind.annotation.adapters.XmlAdapter;
-import space.sadfox.owlook.components.logger.LogLevel;
+import space.sadfox.owlook.logger.LogLevel;
 import space.sadfox.owlook.utils.LoggerMessage;
+import space.sadfox.owlook.utils.OwlLogger;
 
 public class ParserProviderAdapter extends XmlAdapter<String, ParserProvider> {
 
@@ -14,6 +15,7 @@ public class ParserProviderAdapter extends XmlAdapter<String, ParserProvider> {
 			LoggerMessage message = new LoggerMessage(LogLevel.WARNING);
 			message.setName("Parser Provider Not Found [" + v + "]");
 			message.setMessage("Parser Provider Not Found [" + v + "]");
+			OwlLogger.registerMessage(message);
 			return null;
 		}
 	}

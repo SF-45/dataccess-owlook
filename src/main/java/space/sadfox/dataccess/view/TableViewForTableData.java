@@ -2,7 +2,6 @@ package space.sadfox.dataccess.view;
 
 import java.awt.Toolkit;
 import java.awt.datatransfer.StringSelection;
-import java.util.List;
 import java.util.Stack;
 
 import javafx.beans.InvalidationListener;
@@ -13,12 +12,10 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
-import javafx.collections.ListChangeListener.Change;
 import javafx.collections.ObservableList;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SelectionMode;
-import javafx.scene.control.SortEvent;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;

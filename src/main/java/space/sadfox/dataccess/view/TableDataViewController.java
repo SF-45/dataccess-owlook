@@ -31,8 +31,8 @@ import space.sadfox.dataccess.dataccess.Field;
 import space.sadfox.dataccess.dataccess.TableData;
 import space.sadfox.dataccess.dataccess.TableDataController;
 import space.sadfox.owlook.ui.base.Controller;
-import space.sadfox.owlook.utils.ErrorLogger;
 import space.sadfox.owlook.utils.Nullable;
+import space.sadfox.owlook.utils.OwlLogger;
 
 public class TableDataViewController extends Controller {
 
@@ -104,6 +104,7 @@ public class TableDataViewController extends Controller {
 	@SuppressWarnings("unchecked")
 	private void initViewTable() {
 		TableColumn<FieldView, String> field = new TableColumn<>("Field");
+		field.setSortable(false);
 		field.setCellValueFactory(new PropertyValueFactory<>("fieldName"));
 		try {
 			field.setCellFactory(ComboBoxTableCell.forTableColumn(getTableDataFields()));
@@ -115,6 +116,7 @@ public class TableDataViewController extends Controller {
 		});
 
 		TableColumn<FieldView, String> friendlyName = new TableColumn<>("Friendly Name");
+		friendlyName.setSortable(false);
 		friendlyName.setCellValueFactory(new PropertyValueFactory<>("friendlyFieldName"));
 		friendlyName.setCellFactory(TextFieldTableCell.forTableColumn());
 		friendlyName.setOnEditCommit(editEvent -> {
@@ -122,6 +124,7 @@ public class TableDataViewController extends Controller {
 		});
 
 		TableColumn<FieldView, Boolean> visible = new TableColumn<>("Visible");
+		visible.setSortable(false);
 		visible.setCellValueFactory(new PropertyValueFactory<>("visible"));
 		visible.setCellFactory(call -> {
 			CheckBoxTableCell<FieldView, Boolean> cell = new CheckBoxTableCell<>();
@@ -167,7 +170,8 @@ public class TableDataViewController extends Controller {
 			MenuItem copyFields = new MenuItem("Copy All Fileds");
 			copyFields.setOnAction(event -> {
 				getTableDataView().getFieldViews().clear();
-				tableData.getFields().forEach(FieldView::new);
+				var fieldViews = tableData.getFields().stream().map(FieldView::new).collect(Collectors.toList());
+				getTableDataView().getFieldViews().addAll(fieldViews);
 			});
 			tableDataMenuButton.getItems().add(copyFields);
 			
@@ -205,7 +209,7 @@ public class TableDataViewController extends Controller {
 				try {
 					new TableDataController(tableData).show();
 				} catch (IOException e) {
-					ErrorLogger.registerException(e);
+					OwlLogger.registerException(1, e);
 				}
 			});
 			tableDataMenuButton.getItems().add(new SeparatorMenuItem());

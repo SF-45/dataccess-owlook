@@ -55,11 +55,6 @@ public class TableDataView extends JAXBEntity {
 	}
 
 	@Override
-	public String getExtension() {
-		return ".tdataview";
-	}
-
-	@Override
 	public void initialize() {
 		
 	}

@@ -113,6 +113,7 @@ public class TableDataFilterController extends Controller {
 	private void initFiltersTableView() {
 		TableColumn<Filter, String> field = new TableColumn<>("Field");
 		field.setEditable(true);
+		field.setSortable(false);
 		field.setCellValueFactory(new PropertyValueFactory<>("field"));
 		try {
 			field.setCellFactory(ComboBoxTableCell.forTableColumn(getTableDataFields()));
@@ -125,6 +126,7 @@ public class TableDataFilterController extends Controller {
 
 		TableColumn<Filter, Comparison> comparison = new TableColumn<>("Comparison");
 		comparison.setEditable(true);
+		comparison.setSortable(false);
 		comparison.setCellValueFactory(new PropertyValueFactory<>("comparision"));
 		comparison.setCellFactory(ComboBoxTableCell.forTableColumn(Comparison.values()));
 		comparison.setOnEditCommit(event -> {
@@ -133,6 +135,7 @@ public class TableDataFilterController extends Controller {
 
 		TableColumn<Filter, String> value = new TableColumn<>("Value");
 		value.setEditable(true);
+		value.setSortable(false);
 		value.setCellValueFactory(new PropertyValueFactory<>("value"));
 		value.setCellFactory(TextFieldTableCell.forTableColumn());
 		value.setOnEditCommit(editEvent -> {
@@ -141,6 +144,7 @@ public class TableDataFilterController extends Controller {
 
 		TableColumn<Filter, NextComp> next = new TableColumn<>("Next");
 		next.setEditable(true);
+		next.setSortable(false);
 		next.setCellValueFactory(new PropertyValueFactory<>("next"));
 		next.setCellFactory(ComboBoxTableCell.forTableColumn(NextComp.values()));
 		next.setOnEditCommit(editEvent -> {

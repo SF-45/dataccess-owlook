@@ -8,14 +8,14 @@ import space.sadfox.dataccess.dataccess.DataEntity;
 import space.sadfox.dataccess.dataccess.TableData;
 import space.sadfox.dataccess.dataccess.TableDataDao;
 import space.sadfox.owlook.jaxb.EntityLoader;
-import space.sadfox.owlook.utils.ErrorLogger;
+import space.sadfox.owlook.utils.OwlLogger;
 
 public class TableDataFilters {
 	public static TableDataFilter createTableDataFilter() {
 		try {
 			return EntityLoader.INSTANCE.createEntity(TableDataFilter.class);
 		} catch (JAXBException | IOException e) {
-			ErrorLogger.registerException(e);
+			OwlLogger.registerException(1, e);
 		}
 		// TODO: Убрать от сюда null
 		return null;

@@ -130,11 +130,6 @@ public class TableData extends JAXBEntity {
 	}
 
 	@Override
-	public String getExtension() {
-		return ".tdata";
-	}
-
-	@Override
 	public void initialize() {
 		if (getAutoUpdate()) {
 			new TableDataDao(this).loadData();
