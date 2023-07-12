@@ -76,7 +76,8 @@ public class TableDataFilterController extends Controller {
 	}
 
 	private void init() {
-		getStage().titleProperty().bind(Bindings.concat("Edit Filter [", getTableDataFilter().titleProperty(), "]"));
+		stageTitle.bind(Bindings.concat("Edit Filter [", getTableDataFilter().titleProperty(), "]"));
+		
 		titleTextBox.textProperty().bindBidirectional(getTableDataFilter().titleProperty());
 
 		try {

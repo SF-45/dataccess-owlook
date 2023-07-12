@@ -5,7 +5,7 @@ import java.util.List;
 
 import jakarta.xml.bind.JAXBException;
 import space.sadfox.owlook.jaxb.EntityLoader;
-import space.sadfox.owlook.utils.ModuleLoader;
+import space.sadfox.owlook.moduleapi.ModuleLoader;
 import space.sadfox.owlook.utils.OwlLogger;
 
 public class TableDatas {

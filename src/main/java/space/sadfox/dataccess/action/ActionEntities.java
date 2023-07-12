@@ -6,7 +6,7 @@ import java.util.List;
 import jakarta.xml.bind.JAXBException;
 import space.sadfox.dataccess.dataccess.TableData;
 import space.sadfox.owlook.jaxb.EntityLoader;
-import space.sadfox.owlook.utils.ModuleLoader;
+import space.sadfox.owlook.moduleapi.ModuleLoader;
 
 public class ActionEntities {
 	public static Action createAction(ActionEntity actionEntity) throws ActionProviderNotFound {

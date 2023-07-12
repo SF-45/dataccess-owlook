@@ -11,7 +11,7 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import space.sadfox.dataccess.dataccess.Comparison;
-import space.sadfox.owlook.moduleapi.ChangeHistoryKeeping;
+import space.sadfox.owlook.jaxb.ChangeHistoryKeeping;
 
 @XmlAccessorType(XmlAccessType.NONE)
 public class Filter implements ChangeHistoryKeeping {

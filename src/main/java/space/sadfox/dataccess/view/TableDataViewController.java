@@ -78,8 +78,8 @@ public class TableDataViewController extends Controller {
 	}
 
 	private void init() {
-		getStage().titleProperty().bind(Bindings.concat("Edit View [", getTableDataView().titleProperty(), "]"));
-
+		stageTitle.bind(Bindings.concat("Edit View [", getTableDataView().titleProperty(), "]"));
+		
 		title.textProperty().bindBidirectional(getTableDataView().titleProperty());
 
 		try {

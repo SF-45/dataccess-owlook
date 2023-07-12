@@ -2,6 +2,7 @@ package space.sadfox.dataccess.action;
 
 import java.io.IOException;
 
+import javafx.beans.binding.Bindings;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.scene.Parent;
@@ -49,6 +50,8 @@ public class ActionEntityController extends Controller {
 	private void init() {
 		titleTextBox.setText(getActionEntity().getTitle());
 		titleTextBox.textProperty().bindBidirectional(getActionEntity().titleProperty());
+		
+		stageTitle.bind(Bindings.concat("Edit Action [", getActionEntity().titleProperty(), "]"));
 
 		descriptionTextArea.setText(getActionEntity().getDescription());
 		descriptionTextArea.textProperty().bindBidirectional(getActionEntity().descriptionProperty());

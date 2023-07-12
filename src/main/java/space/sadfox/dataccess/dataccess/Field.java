@@ -12,7 +12,7 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import space.sadfox.owlook.moduleapi.ChangeHistoryKeeping;
+import space.sadfox.owlook.jaxb.ChangeHistoryKeeping;
 
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlType

@@ -1,6 +1,6 @@
 import space.sadfox.dataccess.ModuleProvider;
 import space.sadfox.dataccess.action.ActionTool;
-import space.sadfox.owlook.moduleapi.Module;
+import space.sadfox.owlook.moduleapi.OwlookModule;
 import space.sadfox.owlook.moduleapi.Tool;
 
 module space.sadfox.dataccess {
@@ -21,7 +21,7 @@ module space.sadfox.dataccess {
 	opens space.sadfox.dataccess.action to jakarta.xml.bind, javafx.fxml;
 	
 	
-	provides Module with ModuleProvider;
+	provides OwlookModule with ModuleProvider;
 	provides Tool with ActionTool;
 	
 }

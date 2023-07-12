@@ -8,22 +8,20 @@ import space.sadfox.dataccess.dataccess.TableData;
 import space.sadfox.dataccess.filter.TableDataFilter;
 import space.sadfox.dataccess.view.TableDataView;
 import space.sadfox.owlook.jaxb.JAXBEntity;
-import space.sadfox.owlook.moduleapi.Module;
+import space.sadfox.owlook.moduleapi.OwlookModule;
 import space.sadfox.owlook.moduleapi.ModuleHasNoConfiguration;
 import space.sadfox.owlook.utils.Nullable;
 
-public class ModuleProvider implements Module {
+public class ModuleProvider implements OwlookModule {
 
 	@Override
-	public String getModuleName() {
-		// TODO Auto-generated method stub
-		return "dataccess";
+	public String getShortModuleDescription() {
+		return "Loading, accessing and searching a data set in tabular form";
 	}
 
 	@Override
 	public String getModuleDescription() {
-		// TODO Auto-generated method stub
-		return null;
+		return "Loading, accessing and searching a data set in tabular form";
 	}
 
 	@Override
