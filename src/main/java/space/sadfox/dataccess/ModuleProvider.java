@@ -8,8 +8,8 @@ import space.sadfox.dataccess.dataccess.TableData;
 import space.sadfox.dataccess.filter.TableDataFilter;
 import space.sadfox.dataccess.view.TableDataView;
 import space.sadfox.owlook.jaxb.JAXBEntity;
-import space.sadfox.owlook.moduleapi.OwlookModule;
 import space.sadfox.owlook.moduleapi.ModuleHasNoConfiguration;
+import space.sadfox.owlook.moduleapi.OwlookModule;
 import space.sadfox.owlook.utils.Nullable;
 
 public class ModuleProvider implements OwlookModule {

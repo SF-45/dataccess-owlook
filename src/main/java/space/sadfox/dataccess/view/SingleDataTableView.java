@@ -24,13 +24,16 @@ public class SingleDataTableView extends TableView<SingleDataTableView.TableEnti
     public SingleDataTableView() {
         TableColumn<TableEntity, String> fieldColumn = new TableColumn<>("Name");
         fieldColumn.setCellValueFactory(entity -> entity.getValue().field);
+        getColumns().add(fieldColumn);
+        
         TableColumn<TableEntity, String> valueColumn = new TableColumn<>("Value");
         valueColumn.setCellValueFactory(entity -> {
             return new SimpleStringProperty(entity.getValue().value);
         });
         valueColumn.setCellFactory(TextFieldTableCell.forTableColumn());
         valueColumn.setEditable(true);
-        getColumns().addAll(fieldColumn, valueColumn);
+        getColumns().add(valueColumn);
+        
         setEditable(true);
     }
 

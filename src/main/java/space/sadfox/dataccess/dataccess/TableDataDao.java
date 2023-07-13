@@ -22,7 +22,6 @@ public class TableDataDao {
 
 	public TableDataDao(TableData tableData) {
 		this.tableData = tableData;
-		Path tPath = tableData.getPath();
 
 		tableName = "TABLEDATA";
 		dataBasePath = tableData.getResourcesPath().resolve("TableDataDB");
