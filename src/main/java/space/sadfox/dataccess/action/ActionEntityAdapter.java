@@ -1,6 +1,6 @@
 package space.sadfox.dataccess.action;
 
-import space.sadfox.owlook.jaxb.adapters.JAXBEntityAdapter;
+import space.sadfox.owlook.utils.JAXBEntityAdapter;
 
 public class ActionEntityAdapter extends JAXBEntityAdapter<ActionEntity>{
 

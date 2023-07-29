@@ -16,12 +16,13 @@ import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableMap;
 import space.sadfox.dataccess.dataccess.TableData;
-import space.sadfox.owlook.jaxb.JAXBEntity;
+import space.sadfox.owlook.base.jaxb.JAXBEntity;
+import space.sadfox.owlook.ui.base.Controllable;
 import space.sadfox.owlook.ui.base.Controller;
 
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlRootElement
-public class ActionEntity extends JAXBEntity {
+public class ActionEntity extends JAXBEntity implements Controllable {
 
 	private StringProperty title = new SimpleStringProperty("");
 	private StringProperty description = new SimpleStringProperty("");

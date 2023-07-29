@@ -7,17 +7,11 @@ import space.sadfox.dataccess.action.ActionEntity;
 import space.sadfox.dataccess.dataccess.TableData;
 import space.sadfox.dataccess.filter.TableDataFilter;
 import space.sadfox.dataccess.view.TableDataView;
-import space.sadfox.owlook.jaxb.JAXBEntity;
-import space.sadfox.owlook.moduleapi.ModuleHasNoConfiguration;
-import space.sadfox.owlook.moduleapi.OwlookModule;
-import space.sadfox.owlook.utils.Nullable;
+import space.sadfox.owlook.base.jaxb.JAXBEntity;
+import space.sadfox.owlook.base.moduleapi.ModuleHasNoConfiguration;
+import space.sadfox.owlook.base.moduleapi.OwlookModule;
 
 public class ModuleProvider implements OwlookModule {
-
-	@Override
-	public String getShortModuleDescription() {
-		return "Loading, accessing and searching a data set in tabular form";
-	}
 
 	@Override
 	public String getModuleDescription() {
@@ -31,7 +25,7 @@ public class ModuleProvider implements OwlookModule {
 	}
 
 	@Override
-	public List<Class<? extends JAXBEntity>> getJaxbEntities() throws Nullable {
+	public List<Class<? extends JAXBEntity>> getJaxbEntities() {
 		return Arrays.asList(ActionEntity.class, TableData.class, TableDataFilter.class, TableDataView.class);
 	}
 

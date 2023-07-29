@@ -9,7 +9,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import space.sadfox.dataccess.dataccess.core.DBHandler;
+import space.sadfox.owlook.base.jaxb.JAXBEntity;
 import space.sadfox.owlook.logger.LogLevel;
+import space.sadfox.owlook.utils.EntityLoader;
 import space.sadfox.owlook.utils.LoggerMessage;
 import space.sadfox.owlook.utils.OwlLogger;
 
@@ -24,7 +26,7 @@ public class TableDataDao {
 		this.tableData = tableData;
 
 		tableName = "TABLEDATA";
-		dataBasePath = tableData.getResourcesPath().resolve("TableDataDB");
+		dataBasePath = EntityLoader.getEntityResourcesPath(tableData).resolve("TableDataDB");
 	}
 
 	public DataEntity createDataEntity() {
@@ -62,6 +64,11 @@ public class TableDataDao {
 				@Override
 				public boolean wasDataUpdate() {
 					return true;
+				}
+
+				@Override
+				public JAXBEntity getEntity() {
+					return getTableData();
 				}
 			});
 		} catch (SQLException | ParserProviderNotFound e) {

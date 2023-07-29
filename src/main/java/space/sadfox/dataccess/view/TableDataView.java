@@ -15,13 +15,14 @@ import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import space.sadfox.dataccess.dataccess.TableData;
-import space.sadfox.owlook.jaxb.JAXBEntity;
+import space.sadfox.owlook.base.jaxb.JAXBEntity;
+import space.sadfox.owlook.ui.base.Controllable;
 import space.sadfox.owlook.ui.base.Controller;
 import space.sadfox.owlook.utils.Nullable;
 
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlRootElement
-public class TableDataView extends JAXBEntity {
+public class TableDataView extends JAXBEntity implements Controllable {
 	
 	private StringProperty title = new SimpleStringProperty();
 	private ObservableList<FieldView> fieldViews = FXCollections.observableArrayList();

@@ -4,8 +4,8 @@ import java.io.IOException;
 import java.util.List;
 
 import jakarta.xml.bind.JAXBException;
-import space.sadfox.owlook.jaxb.EntityLoader;
-import space.sadfox.owlook.moduleapi.ModuleLoader;
+import space.sadfox.owlook.utils.EntityLoader;
+import space.sadfox.owlook.utils.ModuleLoader;
 import space.sadfox.owlook.utils.OwlLogger;
 
 public class TableDatas {
@@ -18,7 +18,7 @@ public class TableDatas {
 		throw new ParserProviderNotFound();
 	}
 	public static List<ParserProvider> getParserProviders() {
-		return ModuleLoader.INSTANCE.loadModuleExtension(ParserProvider.class, m -> m instanceof ParserProvider);
+		return ModuleLoader.INSTANCE.loadModuleComponents(ParserProvider.class, m -> m instanceof ParserProvider);
 	}
 	
 	public static TableData createTableData() {

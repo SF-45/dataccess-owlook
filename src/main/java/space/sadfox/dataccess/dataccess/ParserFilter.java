@@ -8,7 +8,7 @@ import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-import space.sadfox.owlook.jaxb.ChangeHistoryKeeping;
+import space.sadfox.owlook.base.jaxb.ChangeHistoryKeeping;
 
 public class ParserFilter implements ChangeHistoryKeeping {
 

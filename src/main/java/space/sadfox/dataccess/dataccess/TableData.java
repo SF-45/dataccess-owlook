@@ -19,13 +19,14 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import space.sadfox.owlook.jaxb.EntityChangeListener;
-import space.sadfox.owlook.jaxb.JAXBEntity;
+import space.sadfox.owlook.base.jaxb.EntityChangeListener;
+import space.sadfox.owlook.base.jaxb.JAXBEntity;
+import space.sadfox.owlook.ui.base.Controllable;
 import space.sadfox.owlook.ui.base.Controller;
 
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlRootElement
-public class TableData extends JAXBEntity {
+public class TableData extends JAXBEntity implements Controllable {
 	
 	public static abstract class Change extends EntityChangeListener.Change  {
 		public abstract boolean wasDataUpdate();

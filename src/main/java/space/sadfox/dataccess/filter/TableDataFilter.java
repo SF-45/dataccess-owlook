@@ -15,14 +15,15 @@ import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import space.sadfox.dataccess.dataccess.TableData;
-import space.sadfox.owlook.jaxb.ChangeHistoryKeeping;
-import space.sadfox.owlook.jaxb.JAXBEntity;
+import space.sadfox.owlook.base.jaxb.ChangeHistoryKeeping;
+import space.sadfox.owlook.base.jaxb.JAXBEntity;
+import space.sadfox.owlook.ui.base.Controllable;
 import space.sadfox.owlook.ui.base.Controller;
 import space.sadfox.owlook.utils.Nullable;
 
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlRootElement
-public class TableDataFilter extends JAXBEntity implements ChangeHistoryKeeping {
+public class TableDataFilter extends JAXBEntity implements ChangeHistoryKeeping, Controllable {
 
 	private StringProperty title = new SimpleStringProperty("");
 	private ObservableList<Filter> filters = FXCollections.observableArrayList();

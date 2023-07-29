@@ -22,7 +22,7 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.input.KeyEvent;
 import space.sadfox.dataccess.dataccess.DataEntity;
-import space.sadfox.owlook.jaxb.EntityChangeListener;
+import space.sadfox.owlook.base.jaxb.EntityChangeListener;
 import space.sadfox.owlook.utils.StageFactory;
 
 public class TableViewForTableData extends TableView<DataEntity> {

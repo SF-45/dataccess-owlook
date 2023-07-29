@@ -1,12 +1,12 @@
 import space.sadfox.dataccess.ModuleProvider;
-import space.sadfox.owlook.moduleapi.OwlookModule;
+import space.sadfox.owlook.base.moduleapi.OwlookModule;
 
 module space.sadfox.dataccess {
 
 	requires transitive space.sadfox.owlook;
 	requires com.h2database;
-	requires javafx.fxml;
-	requires javafx.controls;
+	requires java.sql;
+	requires java.desktop;
 	
 	exports space.sadfox.dataccess.dataccess;
 	exports space.sadfox.dataccess.filter;

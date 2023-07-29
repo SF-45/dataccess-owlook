@@ -7,7 +7,7 @@ import jakarta.xml.bind.JAXBException;
 import space.sadfox.dataccess.dataccess.DataEntity;
 import space.sadfox.dataccess.dataccess.TableData;
 import space.sadfox.dataccess.dataccess.TableDataDao;
-import space.sadfox.owlook.jaxb.EntityLoader;
+import space.sadfox.owlook.utils.EntityLoader;
 import space.sadfox.owlook.utils.OwlLogger;
 
 public class TableDataFilters {

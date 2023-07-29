@@ -1,6 +1,6 @@
 package space.sadfox.dataccess.filter;
 
-import space.sadfox.owlook.jaxb.adapters.JAXBEntityAdapter;
+import space.sadfox.owlook.utils.JAXBEntityAdapter;
 
 public class TableDataFilterAdapter extends JAXBEntityAdapter<TableDataFilter> {
 

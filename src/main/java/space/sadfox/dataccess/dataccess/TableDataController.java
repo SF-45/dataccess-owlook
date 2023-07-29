@@ -13,7 +13,6 @@ import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
-import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ChoiceBox;
@@ -31,9 +30,7 @@ import javafx.scene.input.KeyEvent;
 import javafx.stage.FileChooser;
 import javafx.util.StringConverter;
 import space.sadfox.dataccess.ResourceTarget;
-import space.sadfox.owlook.jaxb.ControllerNotDefined;
 import space.sadfox.owlook.ui.base.Controller;
-import space.sadfox.owlook.ui.tools.MessageBox;
 import space.sadfox.owlook.utils.OwlLogger;
 import space.sadfox.owlook.utils.StageFactory;
 
@@ -80,7 +77,7 @@ public class TableDataController extends Controller {
 		try {
 			ParserProvider selectProvider = getTableData().getParserSafe();
 			for (ParserProvider provider : parserChoiseBox.getItems()) {
-				if (provider.getModuleExtensionName().equals(selectProvider.getModuleExtensionName())) {
+				if (provider.getComponentName().equals(selectProvider.getComponentName())) {
 					parserChoiseBox.getSelectionModel().select(provider);
 					break;
 				}
@@ -107,7 +104,7 @@ public class TableDataController extends Controller {
 			public String toString(ParserProvider object) {
 				if (object == null)
 					return "Not found";
-				return object.getModuleExtensionName();
+				return object.getComponentName();
 			}
 
 			@Override
@@ -129,11 +126,6 @@ public class TableDataController extends Controller {
 						.getConfigController(getTableData()).show();
 			} catch (IOException e) {
 				OwlLogger.registerException(1, e);
-			} catch (ControllerNotDefined e) {
-				MessageBox messageBox = new MessageBox(AlertType.INFORMATION);
-				messageBox.setTitle("Settings not defined");
-				messageBox.setHeaderText("The selected parser has no settings");
-				messageBox.showAndWait();
 			}
 		});
 
@@ -141,7 +133,7 @@ public class TableDataController extends Controller {
 			FileChooser chooser = new FileChooser();
 			if (pathToDataTextField.getText() != null && pathToDataTextField.getText() != "") {
 				Path pathToData = Path.of(pathToDataTextField.getText());
-				if (Files.exists(pathToData.getParent())) {
+				if (pathToData.getParent() != null && Files.exists(pathToData.getParent())) {
 					chooser.setInitialDirectory(pathToData.getParent().toFile());
 				}
 			}

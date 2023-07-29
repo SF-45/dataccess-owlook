@@ -3,7 +3,7 @@ package space.sadfox.dataccess.view;
 import java.io.IOException;
 
 import jakarta.xml.bind.JAXBException;
-import space.sadfox.owlook.jaxb.EntityLoader;
+import space.sadfox.owlook.utils.EntityLoader;
 import space.sadfox.owlook.utils.OwlLogger;
 
 public class TableDataViews {

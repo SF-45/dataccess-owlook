@@ -5,8 +5,8 @@ import java.util.List;
 
 import jakarta.xml.bind.JAXBException;
 import space.sadfox.dataccess.dataccess.TableData;
-import space.sadfox.owlook.jaxb.EntityLoader;
-import space.sadfox.owlook.moduleapi.ModuleLoader;
+import space.sadfox.owlook.utils.EntityLoader;
+import space.sadfox.owlook.utils.ModuleLoader;
 
 public class ActionEntities {
 	public static Action createAction(ActionEntity actionEntity) throws ActionProviderNotFound {
@@ -34,7 +34,7 @@ public class ActionEntities {
 	}
 
 	public static List<ActionProvider> getActionProviders() {
-		return ModuleLoader.INSTANCE.loadModuleExtension(ActionProvider.class, m -> m instanceof ActionProvider);
+		return ModuleLoader.INSTANCE.loadModuleComponents(ActionProvider.class, m -> m instanceof ActionProvider);
 
 	}
 
