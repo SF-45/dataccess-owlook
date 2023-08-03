@@ -122,8 +122,7 @@ public class TableDataController extends Controller {
 
 		configParser.setOnAction(event -> {
 			try {
-				parserChoiseBox.getSelectionModel().getSelectedItem()
-						.getConfigController(getTableData()).show();
+				parserChoiseBox.getSelectionModel().getSelectedItem().getConfigController(getTableData()).show();
 			} catch (IOException e) {
 				OwlLogger.registerException(1, e);
 			}
@@ -194,7 +193,9 @@ public class TableDataController extends Controller {
 		});
 
 		fieldsTable.getSelectionModel().selectedItemProperty().addListener((property, oldValue, newValue) -> {
-			parserFilterTable.setItems(newValue.parserFiltersProperty());
+			if (newValue != null) {
+				parserFilterTable.setItems(newValue.parserFiltersProperty());
+			}
 		});
 
 		// ==================================================================

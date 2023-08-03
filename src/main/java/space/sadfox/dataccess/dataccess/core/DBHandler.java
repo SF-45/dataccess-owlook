@@ -9,7 +9,6 @@ import java.sql.Statement;
 
 public class DBHandler implements AutoCloseable {
 	
-	static final String JDBC_DRIVER = "org.h2.Driver";
 	static final String DB_URL = "jdbc:h2:";  
 	   
    static final String USER = "root"; 
@@ -20,8 +19,9 @@ public class DBHandler implements AutoCloseable {
     private PreparedStatement preparedStatement;
 
     public DBHandler(Path path) throws SQLException {
-    	//Class.forName(JDBC_DRIVER); 
+    	DriverManager.registerDriver(new org.h2.Driver());
         this.connection = DriverManager.getConnection(DB_URL + path.toString(), USER, PASS);
+        
     }
 
 
