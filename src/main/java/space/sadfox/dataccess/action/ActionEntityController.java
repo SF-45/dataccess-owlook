@@ -12,10 +12,10 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
 import space.sadfox.dataccess.ResourceTarget;
 import space.sadfox.dataccess.dataccess.TableData;
-import space.sadfox.owlook.ui.base.Controller;
+import space.sadfox.owlook.ui.base.FXMLController;
 import space.sadfox.owlook.utils.Nullable;
 
-public class ActionEntityController extends Controller {
+public class ActionEntityController extends FXMLController {
 
 	@FXML
 	private TextArea descriptionTextArea;

@@ -4,10 +4,20 @@ import java.awt.Toolkit;
 import java.awt.datatransfer.StringSelection;
 import java.util.Stack;
 
+import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
+import javafx.beans.binding.Bindings;
+import javafx.beans.binding.DoubleBinding;
+import javafx.beans.binding.NumberBinding;
+import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.LongProperty;
+import javafx.beans.property.ReadOnlyDoubleProperty;
+import javafx.beans.property.ReadOnlyLongProperty;
 import javafx.beans.property.ReadOnlyStringProperty;
+import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.SimpleLongProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
@@ -23,9 +33,79 @@ import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.input.KeyEvent;
 import space.sadfox.dataccess.dataccess.DataEntity;
 import space.sadfox.owlook.base.jaxb.EntityChangeListener;
+import space.sadfox.owlook.utils.OwlLogger;
 import space.sadfox.owlook.utils.StageFactory;
 
 public class TableViewForTableData extends TableView<DataEntity> {
+	
+	public class FindActionDelay {
+		
+		private Thread timer;
+		private final Runnable action;
+		private final LongProperty time = new SimpleLongProperty(0);
+		private final LongProperty delay = new SimpleLongProperty(0);
+		
+		private FindActionDelay() {
+			action = () -> {
+				getItems().removeListener(searchChangeListener);
+				if (currentSearchText.get() == "" || currentSearchText.get() == null) {
+					getItems().clear();
+					getItems().addAll(currentItems);
+				} else {
+					getItems().clear();
+					getItems().addAll(currentItems.filtered(dataEntity -> dataEntity.findLike(currentSearchText.get())));
+				}
+				getItems().addListener(searchChangeListener);
+				time.set(0);
+				refresh();
+				System.out.println(currentSearchText.get());
+			};
+		}
+		
+		private void findAction() {
+			time.set(0);
+			if (timer == null || !timer.isAlive()) {
+				timer= new Thread(() -> {
+					for (;time.get() <= delay.get(); time.set(time.get() + 1)) {
+						try {
+							Thread.sleep(1);
+						} catch (InterruptedException e) {
+							OwlLogger.registerException(2, e);
+						}
+					}
+					Platform.runLater(action);
+				});
+				timer.start();
+				
+			}
+		}
+		
+		public double getTime() {
+			return time.get();
+		}
+		
+		public ReadOnlyLongProperty timeProperty() {
+			return time;
+		}
+		
+		public double getDelay() {
+			return delay.get();
+		}
+		
+		public void setDelay(long millis) {
+			this.delay.set(millis);
+		}
+		
+		public LongProperty delayProperty() {
+			return delay;
+		}
+		
+		public DoubleBinding progressProperty() {
+			return Bindings.createDoubleBinding(() -> {
+				return delay.get() <= 0 ? 0d : time.doubleValue() / delay.doubleValue();
+			}, time, delay);
+		}
+	}
 
 	private final Stack<ObservableList<DataEntity>> historyFind = new Stack<>();
 	private ObservableList<DataEntity> currentItems = FXCollections.observableArrayList();
@@ -34,6 +114,7 @@ public class TableViewForTableData extends TableView<DataEntity> {
 	private StringProperty searchTextHistory = new SimpleStringProperty("");
 	private ObservableList<String> searchTextHistoryList = FXCollections.observableArrayList();
 	private final String SEARCH_HISTORY_DELIMMER = " -> ";
+	private final FindActionDelay findActionDelay = new FindActionDelay();
 
 	private ContextMenu contextMenu = new ContextMenu();
 	private MenuItem undo = new MenuItem("Undo");
@@ -161,23 +242,9 @@ public class TableViewForTableData extends TableView<DataEntity> {
 		
 		currentSearchText.addListener((property, oldValue, newValue) -> {
 			if (oldValue != null && oldValue.equals(newValue)) return;
-			findAction(newValue);
+			findActionDelay.findAction();
 		});
 		
-	}
-
-	public void setTableDataView(TableDataView tableDataView) {
-		if (currentView != null) {
-			currentView.removeEntityChangeListener(changeListener);
-		}
-		currentView = tableDataView;
-		changeListener = change -> {
-			if (change.wasModify()) {
-				updateDataView();
-			}
-		};
-		tableDataView.addEntityChangeListener(changeListener);
-		updateDataView();
 	}
 
 	private void updateDataView() {
@@ -206,29 +273,6 @@ public class TableViewForTableData extends TableView<DataEntity> {
 		getColumns().add(column);
 	}
 
-	private void findAction(String findable) {
-		getItems().removeListener(searchChangeListener);
-		if (findable == "" || findable == null) {
-			getItems().clear();
-			getItems().addAll(currentItems);
-		} else {
-			getItems().clear();
-			getItems().addAll(currentItems.filtered(dataEntity -> dataEntity.findLike(findable)));
-		}
-		getItems().addListener(searchChangeListener);
-		refresh();
-
-	}
-
-	public void nextFind() {
-		if (currentSearchText.get() == "") return;
-		historyFind.push(FXCollections.observableArrayList(currentItems));
-		currentItems.clear();
-		currentItems.addAll(getItems());
-		undo.setVisible(true);
-		searchTextHistoryList.add(currentSearchText.get());
-	}
-
 	private void copyAction() {
 		StringBuilder builder = new StringBuilder();
 		TableView.TableViewSelectionModel<DataEntity> selection = this.getSelectionModel();
@@ -254,6 +298,31 @@ public class TableViewForTableData extends TableView<DataEntity> {
 		currentSearchText.set("");
 	}
 	
+	public void nextFind() {
+		if (currentSearchText.get() == "") return;
+		historyFind.push(FXCollections.observableArrayList(currentItems));
+		currentItems.clear();
+		currentItems.addAll(getItems());
+		undo.setVisible(true);
+		searchTextHistoryList.add(currentSearchText.get());
+	}
+
+
+	public void setTableDataView(TableDataView tableDataView) {
+		if (currentView != null) {
+			currentView.removeEntityChangeListener(changeListener);
+		}
+		currentView = tableDataView;
+		changeListener = change -> {
+			if (change.wasModify()) {
+				updateDataView();
+			}
+		};
+		tableDataView.addEntityChangeListener(changeListener);
+		updateDataView();
+	}
+
+
 	public String getCurrentSearchText() {
 		return currentSearchText.get();
 	}
@@ -271,6 +340,10 @@ public class TableViewForTableData extends TableView<DataEntity> {
 	}
 	public ReadOnlyStringProperty searchTextHistoryProperty() {
 		return searchTextHistory;
+	}
+	
+	public FindActionDelay getFindActionDelay() {
+		return findActionDelay;
 	}
 
 }

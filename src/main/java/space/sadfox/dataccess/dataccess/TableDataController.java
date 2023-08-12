@@ -30,11 +30,11 @@ import javafx.scene.input.KeyEvent;
 import javafx.stage.FileChooser;
 import javafx.util.StringConverter;
 import space.sadfox.dataccess.ResourceTarget;
-import space.sadfox.owlook.ui.base.Controller;
+import space.sadfox.owlook.ui.base.FXMLController;
 import space.sadfox.owlook.utils.OwlLogger;
 import space.sadfox.owlook.utils.StageFactory;
 
-public class TableDataController extends Controller {
+public class TableDataController extends FXMLController {
 
 	@FXML
 	private CheckBox autoUpdate;

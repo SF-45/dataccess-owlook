@@ -30,11 +30,11 @@ import space.sadfox.dataccess.ResourceTarget;
 import space.sadfox.dataccess.dataccess.Field;
 import space.sadfox.dataccess.dataccess.TableData;
 import space.sadfox.dataccess.dataccess.TableDataController;
-import space.sadfox.owlook.ui.base.Controller;
+import space.sadfox.owlook.ui.base.FXMLController;
 import space.sadfox.owlook.utils.Nullable;
 import space.sadfox.owlook.utils.OwlLogger;
 
-public class TableDataViewController extends Controller {
+public class TableDataViewController extends FXMLController {
 
 	@FXML
 	private ChoiceBox<String> TDField;

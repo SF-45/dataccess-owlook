@@ -26,10 +26,10 @@ import javafx.scene.input.KeyEvent;
 import space.sadfox.dataccess.ResourceTarget;
 import space.sadfox.dataccess.dataccess.Comparison;
 import space.sadfox.dataccess.dataccess.TableData;
-import space.sadfox.owlook.ui.base.Controller;
+import space.sadfox.owlook.ui.base.FXMLController;
 import space.sadfox.owlook.utils.Nullable;
 
-public class TableDataFilterController extends Controller {
+public class TableDataFilterController extends FXMLController {
 
 	@FXML
 	private SplitMenuButton addto;
