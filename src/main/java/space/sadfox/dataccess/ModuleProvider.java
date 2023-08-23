@@ -25,7 +25,7 @@ public class ModuleProvider implements OwlookModule {
 	}
 
 	@Override
-	public List<Class<? extends JAXBEntity>> getJaxbEntities() {
+	public List<Class<? extends JAXBEntity>> getOwlEntities() {
 		return Arrays.asList(ActionEntity.class, TableData.class, TableDataFilter.class, TableDataView.class);
 	}
 

@@ -97,7 +97,7 @@ public class TableDataDao {
 	private void createNewTable(Statement statement) throws SQLException {
 		StringBuilder sql = new StringBuilder();
 
-		String dataType = " VARCHAR (100)";
+		String dataType = " VARCHAR (200)";
 		List<String> fields = new ArrayList<>();
 		getTableData().getFields().forEach(field -> {
 			fields.add(field.getFieldName());
