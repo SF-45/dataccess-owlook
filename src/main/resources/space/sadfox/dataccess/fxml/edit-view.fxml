@@ -7,13 +7,13 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="494.0" prefWidth="649.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1">
+<AnchorPane prefHeight="494.0" prefWidth="649.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1">
    <children>
       <TableView fx:id="viewTable" editable="true" layoutX="14.0" layoutY="75.0" prefHeight="404.0" prefWidth="619.0" AnchorPane.bottomAnchor="15.0" AnchorPane.leftAnchor="15.0" AnchorPane.rightAnchor="15.0" AnchorPane.topAnchor="75.0" />
       <ChoiceBox fx:id="TDField" layoutX="14.0" layoutY="39.0" prefWidth="150.0" AnchorPane.leftAnchor="14.0" AnchorPane.topAnchor="39.0" />
       <TextField fx:id="friendlyName" layoutX="172.0" layoutY="39.0" prefHeight="26.0" prefWidth="131.0" AnchorPane.leftAnchor="172.0" AnchorPane.topAnchor="39.0" />
       <Button fx:id="add" layoutX="303.0" layoutY="39.0" mnemonicParsing="false" text="Add" AnchorPane.leftAnchor="303.0" AnchorPane.topAnchor="39.0" />
       <TextField fx:id="title" alignment="CENTER" layoutY="2.0" prefHeight="25.0" prefWidth="411.0" text="title" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
-      <MenuButton fx:id="tableDataMenuButton" disable="true" layoutX="534.0" layoutY="39.0" mnemonicParsing="false" text="Table Data" />
+      <MenuButton fx:id="tableDataMenuButton" disable="true" layoutX="534.0" layoutY="39.0" mnemonicParsing="false" text="Table Data" AnchorPane.rightAnchor="14.0" AnchorPane.topAnchor="39.0" />
    </children>
 </AnchorPane>

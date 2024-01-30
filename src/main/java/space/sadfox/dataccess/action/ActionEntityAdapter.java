@@ -1,8 +1,8 @@
 package space.sadfox.dataccess.action;
 
-import space.sadfox.owlook.utils.JAXBEntityAdapter;
+import space.sadfox.owlook.owlery.OwlAdapter;
 
-public class ActionEntityAdapter extends JAXBEntityAdapter<ActionEntity>{
+public class ActionEntityAdapter extends OwlAdapter<ActionEntity>{
 
 	@Override
 	protected Class<ActionEntity> getTarget() {

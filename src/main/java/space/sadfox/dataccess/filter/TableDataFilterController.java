@@ -26,6 +26,7 @@ import javafx.scene.input.KeyEvent;
 import space.sadfox.dataccess.ResourceTarget;
 import space.sadfox.dataccess.dataccess.Comparison;
 import space.sadfox.dataccess.dataccess.TableData;
+import space.sadfox.owlook.base.owl.Owl;
 import space.sadfox.owlook.ui.base.FXMLController;
 import space.sadfox.owlook.utils.Nullable;
 
@@ -49,14 +50,14 @@ public class TableDataFilterController extends FXMLController {
 	@FXML
 	private TextField valueTextBox;
 
-	private TableDataFilter filter;
-	private TableData tableData;
+	private Owl<TableDataFilter> filterOwl;
+	private Owl<TableData> tableDataOwl;
 	private ObjectProperty<NextComp> currectComp = new SimpleObjectProperty<>(NextComp.AND);
 
-	public TableDataFilterController(TableDataFilter filter, TableData tableData) throws IOException {
+	public TableDataFilterController(Owl<TableDataFilter> filterOwl, Owl<TableData> tebleDataOwl) throws IOException {
 		super(ResourceTarget.class.getResource("fxml/edit-filter.fxml"));
-		this.filter = filter;
-		this.tableData = tableData;
+		this.filterOwl = filterOwl;
+		this.tableDataOwl = tebleDataOwl;
 		
 		init();
 		initFiltersTableView();
@@ -64,10 +65,10 @@ public class TableDataFilterController extends FXMLController {
 
 	}
 	
-	public TableDataFilterController(TableDataFilter filter) throws IOException {
+	public TableDataFilterController(Owl<TableDataFilter> filterOwl) throws IOException {
 		super(ResourceTarget.class.getResource("fxml/edit-filter.fxml"));
-		this.filter = filter;
-		this.tableData = null;
+		this.filterOwl = filterOwl;
+		this.tableDataOwl = null;
 		
 		init();
 		initFiltersTableView();
@@ -76,9 +77,9 @@ public class TableDataFilterController extends FXMLController {
 	}
 
 	private void init() {
-		stageTitle.bind(Bindings.concat("Edit Filter [", getTableDataFilter().titleProperty(), "]"));
+		stageTitle.bind(Bindings.concat("Edit Filter [", filterOwl.head().titleProperty(), "]"));
 		
-		titleTextBox.textProperty().bindBidirectional(getTableDataFilter().titleProperty());
+		titleTextBox.textProperty().bindBidirectional(filterOwl.head().titleProperty());
 
 		try {
 			dateFieldComboBox.getItems().addAll(getTableDataFields());
@@ -212,13 +213,13 @@ public class TableDataFilterController extends FXMLController {
 	}
 
 	private TableData getTableData() throws Nullable {
-		if (tableData == null)
+		if (tableDataOwl == null)
 			throw new Nullable();
-		return tableData;
+		return tableDataOwl.entity();
 	}
 
 	private TableDataFilter getTableDataFilter() {
-		return filter;
+		return filterOwl.entity();
 	}
 
 	private ObservableList<String> getTableDataFields() throws Nullable {

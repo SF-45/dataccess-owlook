@@ -8,14 +8,10 @@ import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.DoubleBinding;
-import javafx.beans.binding.NumberBinding;
-import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.LongProperty;
-import javafx.beans.property.ReadOnlyDoubleProperty;
 import javafx.beans.property.ReadOnlyLongProperty;
 import javafx.beans.property.ReadOnlyStringProperty;
-import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleLongProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -32,8 +28,10 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.input.KeyEvent;
 import space.sadfox.dataccess.dataccess.DataEntity;
-import space.sadfox.owlook.base.jaxb.EntityChangeListener;
-import space.sadfox.owlook.utils.OwlLogger;
+import space.sadfox.owlook.base.jaxb.ChangeHistoryListener;
+import space.sadfox.owlook.base.owl.Owl;
+import space.sadfox.owlook.base.owl.OwlEntity;
+import space.sadfox.owlook.utils.Logger;
 import space.sadfox.owlook.utils.StageFactory;
 
 public class TableViewForTableData extends TableView<DataEntity> {
@@ -70,7 +68,7 @@ public class TableViewForTableData extends TableView<DataEntity> {
 						try {
 							Thread.sleep(1);
 						} catch (InterruptedException e) {
-							OwlLogger.registerException(2, e);
+							Logger.registerException(2, e);
 						}
 					}
 					Platform.runLater(action);
@@ -120,8 +118,8 @@ public class TableViewForTableData extends TableView<DataEntity> {
 	private MenuItem undo = new MenuItem("Undo");
 	private IntegerProperty indProperty = new SimpleIntegerProperty();
 
-	private TableDataView currentView;
-	private EntityChangeListener changeListener;
+	private Owl<TableDataView> currentViewOwl;
+	private ChangeHistoryListener<OwlEntity> changeListener;
 
 	public TableViewForTableData() {
 
@@ -249,7 +247,7 @@ public class TableViewForTableData extends TableView<DataEntity> {
 
 	private void updateDataView() {
 		getColumns().clear();
-		currentView.getFieldViews().forEach(this::createColumn);
+		currentViewOwl.entity().getFieldViews().forEach(this::createColumn);
 	}
 
 	private void createColumn(FieldView field) {
@@ -308,17 +306,17 @@ public class TableViewForTableData extends TableView<DataEntity> {
 	}
 
 
-	public void setTableDataView(TableDataView tableDataView) {
-		if (currentView != null) {
-			currentView.removeEntityChangeListener(changeListener);
+	public void setTableDataView(Owl<TableDataView> tableDataViewOwl) {
+		if (currentViewOwl != null) {
+			currentViewOwl.entity().getChangeHistory().removeListener(changeListener);
 		}
-		currentView = tableDataView;
+		currentViewOwl = tableDataViewOwl;
 		changeListener = change -> {
 			if (change.wasModify()) {
 				updateDataView();
 			}
 		};
-		tableDataView.addEntityChangeListener(changeListener);
+		tableDataViewOwl.entity().getChangeHistory().addListener(changeListener);
 		updateDataView();
 	}
 

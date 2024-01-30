@@ -1,13 +1,6 @@
 package space.sadfox.dataccess;
 
-import java.util.Arrays;
-import java.util.List;
-
-import space.sadfox.dataccess.action.ActionEntity;
-import space.sadfox.dataccess.dataccess.TableData;
-import space.sadfox.dataccess.filter.TableDataFilter;
-import space.sadfox.dataccess.view.TableDataView;
-import space.sadfox.owlook.base.jaxb.JAXBEntity;
+import space.sadfox.owlook.base.jaxb.ObservedJAXBEntity;
 import space.sadfox.owlook.base.moduleapi.ModuleHasNoConfiguration;
 import space.sadfox.owlook.base.moduleapi.OwlookModule;
 
@@ -25,18 +18,13 @@ public class ModuleProvider implements OwlookModule {
 	}
 
 	@Override
-	public List<Class<? extends JAXBEntity>> getOwlEntities() {
-		return Arrays.asList(ActionEntity.class, TableData.class, TableDataFilter.class, TableDataView.class);
-	}
-
-	@Override
 	public void initModule() {
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
-	public Class<? extends JAXBEntity> getConfigTarget() throws ModuleHasNoConfiguration {
+	public Class<? extends ObservedJAXBEntity> getConfigTarget() throws ModuleHasNoConfiguration {
 		throw new ModuleHasNoConfiguration();
 	}
 

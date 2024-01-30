@@ -85,7 +85,7 @@ public class Filter implements ChangeHistoryKeeping {
 
 	@Override
 	public List<Object> getProperties() {
-		return Arrays.asList(field, comparision, value);
+		return Arrays.asList(field, comparision, value, next);
 	}
 
 

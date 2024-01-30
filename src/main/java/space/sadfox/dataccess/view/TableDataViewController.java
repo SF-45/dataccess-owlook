@@ -30,9 +30,10 @@ import space.sadfox.dataccess.ResourceTarget;
 import space.sadfox.dataccess.dataccess.Field;
 import space.sadfox.dataccess.dataccess.TableData;
 import space.sadfox.dataccess.dataccess.TableDataController;
+import space.sadfox.owlook.base.owl.Owl;
 import space.sadfox.owlook.ui.base.FXMLController;
+import space.sadfox.owlook.utils.Logger;
 import space.sadfox.owlook.utils.Nullable;
-import space.sadfox.owlook.utils.OwlLogger;
 
 public class TableDataViewController extends FXMLController {
 
@@ -54,33 +55,33 @@ public class TableDataViewController extends FXMLController {
 	@FXML
 	private TextField title;
 
-	private TableData tableData;
-	private TableDataView view;
+	private Owl<TableDataView> viewOwl;
+	private Owl<TableData> dataOwl;
 
-	public TableDataViewController(TableDataView view, TableData tableData) throws IOException {
+	public TableDataViewController(Owl<TableDataView> viewOwl, Owl<TableData> dataOwl) throws IOException {
 		super(ResourceTarget.class.getResource("fxml/edit-view.fxml"));
 
-		this.tableData = tableData;
-		this.view = view;
+		this.dataOwl = dataOwl;
+		this.viewOwl = viewOwl;
 		
 		init();
 
 	}
 	
-	public TableDataViewController(TableDataView view) throws IOException {
+	public TableDataViewController(Owl<TableDataView> viewOwl) throws IOException {
 		super(ResourceTarget.class.getResource("fxml/edit-view.fxml"));
 
-		this.tableData = null;
-		this.view = view;
+		this.dataOwl = null;
+		this.viewOwl = viewOwl;
 		
 		init();
 
 	}
 
 	private void init() {
-		stageTitle.bind(Bindings.concat("Edit View [", getTableDataView().titleProperty(), "]"));
+		stageTitle.bind(Bindings.concat("Edit View [", viewOwl.head().titleProperty(), "]"));
 		
-		title.textProperty().bindBidirectional(getTableDataView().titleProperty());
+		title.textProperty().bindBidirectional(viewOwl.head().titleProperty());
 
 		try {
 			TDField.getItems().addAll(getTableDataFields());
@@ -207,9 +208,9 @@ public class TableDataViewController extends FXMLController {
 			MenuItem editTableData = new MenuItem("Edit Table Data");
 			editTableData.setOnAction(event -> {
 				try {
-					new TableDataController(tableData).show();
+					new TableDataController(dataOwl).show();
 				} catch (IOException e) {
-					OwlLogger.registerException(1, e);
+					Logger.registerException(1, e);
 				}
 			});
 			tableDataMenuButton.getItems().add(new SeparatorMenuItem());
@@ -247,13 +248,18 @@ public class TableDataViewController extends FXMLController {
 	}
 
 	private TableData getTableData() throws Nullable {
-		if (tableData == null)
+		return getTableDataOwl().entity();
+	}
+	
+	private Owl<TableData> getTableDataOwl() throws Nullable {
+		if (dataOwl == null) {
 			throw new Nullable();
-		return tableData;
+		}
+		return dataOwl;
 	}
 
 	private TableDataView getTableDataView() {
-		return view;
+		return viewOwl.entity();
 	}
 
 	private ObservableList<String> getTableDataFields() throws Nullable {

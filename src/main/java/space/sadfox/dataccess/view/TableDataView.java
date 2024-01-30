@@ -3,46 +3,28 @@ package space.sadfox.dataccess.view;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
-
 import jakarta.xml.bind.annotation.XmlAccessType;
 import jakarta.xml.bind.annotation.XmlAccessorType;
-import jakarta.xml.bind.annotation.XmlAttribute;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlElementWrapper;
 import jakarta.xml.bind.annotation.XmlRootElement;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import space.sadfox.dataccess.dataccess.TableData;
-import space.sadfox.owlook.base.jaxb.JAXBEntity;
+import space.sadfox.owlook.base.owl.Owl;
+import space.sadfox.owlook.base.owl.OwlEntity;
 import space.sadfox.owlook.ui.base.Controllable;
 import space.sadfox.owlook.ui.base.Controller;
 import space.sadfox.owlook.utils.Nullable;
 
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlRootElement
-public class TableDataView extends JAXBEntity implements Controllable {
+public class TableDataView extends OwlEntity implements Controllable {
 	
-	private StringProperty title = new SimpleStringProperty();
 	private ObservableList<FieldView> fieldViews = FXCollections.observableArrayList();
 	
-	@Override
-	@XmlAttribute(name = "title")
-	public String getTitle() {
-		return title.get();
-	}
-	
-	public void setTitle(String name) {
-		this.title.set(name);
-	}
-	
-	public StringProperty titleProperty() {
-		return title;
-	}
-	
-	@XmlElementWrapper(name = "FieldViews")
-	@XmlElement(name = "FieldView")
+	@XmlElementWrapper(name = "fieldViews")
+	@XmlElement(name = "fieldView")
 	public List<FieldView> getFieldViews() {
 		return fieldViews;
 	}
@@ -52,21 +34,17 @@ public class TableDataView extends JAXBEntity implements Controllable {
 
 	@Override
 	public List<Object> getProperties() {
-		return Arrays.asList(title, fieldViews);
+		return Arrays.asList(fieldViews);
 	}
 
 	@Override
 	public void initialize() {
 		
 	}
-	
-	@Override
-	public void validate() {
-	}
 
 	@Override
 	public String toString() {
-		StringBuilder builder = new StringBuilder("TableDataView: " + getTitle() + "\n\n");
+		StringBuilder builder = new StringBuilder("TableDataView: " + getOwl().head().getTitle() + "\n\n");
 		builder.append("FieldViews:\n");
 		
 		for (FieldView view : getFieldViews()) {
@@ -76,23 +54,21 @@ public class TableDataView extends JAXBEntity implements Controllable {
 	}
 
 	@Override
-	public Controller getConfigController() throws IOException{
-		return new TableDataViewController(this);
+	public Controller getController() throws IOException{
+		return new TableDataViewController((Owl<TableDataView>) getOwl());
 	}
 	
-	public Controller getConfigController(TableData tableData) throws IOException, Nullable {
-		return new TableDataViewController(this, tableData);
+	public Controller getController(Owl<TableData> dataOwl) throws IOException, Nullable {
+		return new TableDataViewController((Owl<TableDataView>) getOwl(), dataOwl);
 	}
 
 	@Override
-	public void syncWith(JAXBEntity entity) {
+	public void syncWith(OwlEntity entity) {
 		if (!(entity instanceof TableDataView)) {
 			return;
 		}
 		
 		TableDataView targetView = (TableDataView) entity;
-		
-		setTitle(targetView.getTitle());
 		
 		getFieldViews().clear();
 		targetView.getFieldViews().forEach(targetFieldView -> {

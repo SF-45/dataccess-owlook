@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-
 import jakarta.xml.bind.annotation.XmlAccessType;
 import jakarta.xml.bind.annotation.XmlAccessorType;
 import jakarta.xml.bind.annotation.XmlAttribute;
@@ -16,137 +15,118 @@ import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableMap;
 import space.sadfox.dataccess.dataccess.TableData;
-import space.sadfox.owlook.base.jaxb.JAXBEntity;
+import space.sadfox.owlook.base.owl.Owl;
+import space.sadfox.owlook.base.owl.OwlEntity;
 import space.sadfox.owlook.ui.base.Controllable;
 import space.sadfox.owlook.ui.base.Controller;
 
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlRootElement
-public class ActionEntity extends JAXBEntity implements Controllable {
+public class ActionEntity extends OwlEntity implements Controllable {
 
-	private StringProperty title = new SimpleStringProperty("");
-	private StringProperty description = new SimpleStringProperty("");
-	private StringProperty actionProvider = new SimpleStringProperty("");
-	private ObservableMap<String, StringProperty> actionProperties = FXCollections.observableHashMap();
+  private StringProperty description = new SimpleStringProperty("");
+  private StringProperty actionProvider = new SimpleStringProperty("");
+  private ObservableMap<String, StringProperty> actionProperties =
+      FXCollections.observableHashMap();
 
-	@Override
-	@XmlAttribute(name = "title")
-	public String getTitle() {
-		return title.get();
-	}
+  @XmlElement(name = "description")
+  public String getDescription() {
+    return descriptionProperty().get();
+  }
 
-	public void setTitle(String title) {
-		this.title.set(title);
-	}
+  public void setDescription(String description) {
+    descriptionProperty().set(description);
+  }
 
-	public StringProperty titleProperty() {
-		return title;
-	}
-	
-	@XmlElement(name = "description")
-	public String getDescription() {
-		return descriptionProperty().get();
-	}
+  public StringProperty descriptionProperty() {
+    return description;
+  }
 
-	public void setDescription(String description) {
-		descriptionProperty().set(description);
-	}
+  @XmlAttribute(name = "actionProvider")
+  public String getActionProvider() {
+    return actionProvider.get();
+  }
 
-	public StringProperty descriptionProperty() {
-		return description;
-	}
+  public void setActionProvider(String actionProvider) {
+    this.actionProvider.set(actionProvider);
+  }
 
-	@XmlAttribute(name = "actionProvider")
-	public String getActionProvider() {
-		return actionProvider.get();
-	}
+  public StringProperty actionProviderProperty() {
+    return actionProvider;
+  }
 
-	public void setActionProvider(String actionProvider) {
-		this.actionProvider.set(actionProvider);
-	}
+  @XmlElement(name = "properties")
+  @XmlJavaTypeAdapter(HashMapAdapter.class)
+  public HashMap<String, StringProperty> getActionProperties() {
+    return new HashMap<>(actionProperties);
+  }
 
-	public StringProperty actionProviderProperty() {
-		return actionProvider;
-	}
+  public void setActionProperties(HashMap<String, StringProperty> commandProperties) {
+    this.actionProperties = FXCollections.observableMap(commandProperties);
+  }
 
-	@XmlElement(name = "properties")
-	@XmlJavaTypeAdapter(HashMapAdapter.class)
-	public HashMap<String, StringProperty> getActionProperties() {
-		return new HashMap<>(actionProperties);
-	}
+  public ObservableMap<String, StringProperty> actionPropertiesProperty() {
+    return actionProperties;
+  }
 
-	public void setActionProperties(HashMap<String, StringProperty> commandProperties) {
-		this.actionProperties = FXCollections.observableMap(commandProperties);
-	}
+  @Override
+  public List<Object> getProperties() {
+    return Arrays.asList(actionProvider, actionProperties, description);
+  }
 
-	public ObservableMap<String, StringProperty> actionPropertiesProperty() {
-		return actionProperties;
-	}
+  public StringProperty getActionProperty(String key, String defaultValue) {
+    if (actionProperties.containsKey(key)) {
+      return actionProperties.get(key);
+    } else {
+      StringProperty defaultValueProperty = new SimpleStringProperty(defaultValue);
+      actionProperties.put(key, defaultValueProperty);
+      return defaultValueProperty;
+    }
+  }
 
-	@Override
-	public List<Object> getProperties() {
-		return Arrays.asList(title, actionProvider, actionProperties, description);
-	}
+  @Override
+  public void initialize() {
 
-	public StringProperty getActionProperty(String key, String defaultValue) {
-		if (actionProperties.containsKey(key)) {
-			return actionProperties.get(key);
-		} else {
-			StringProperty defaultValueProperty = new SimpleStringProperty(defaultValue);
-			actionProperties.put(key, defaultValueProperty);
-			return defaultValueProperty;
-		}
-	}
+  }
 
-	@Override
-	public void initialize() {
+  @Override
+  public String toString() {
+    StringBuilder builder = new StringBuilder("Action: " + getOwl().head().getTitle() + "\n");
+    builder.append("Action Provider: " + getActionProvider() + "\n\n");
 
-	}
-	
-	@Override
-	public void validate() {
-	}
+    builder.append("Description: " + getDescription() + "\n\n");
 
-	@Override
-	public String toString() {
-		StringBuilder builder = new StringBuilder("Action: " + getTitle() + "\n");
-		builder.append("Action Provider: " + getActionProvider() + "\n\n");
-		
-		builder.append("Description: " + getDescription() + "\n\n");
-		
-		builder.append("Properties:\n");
-		
-		getActionProperties().forEach((key, value) -> {
-			builder.append("\t" + key + " = [" + value.get() + "]\n");
-		});
-		
-		return builder.toString();
-	}
+    builder.append("Properties:\n");
 
-	@Override
-	public Controller getConfigController() throws IOException {
-		return new ActionEntityController(this);
-	}
-	
-	public Controller getConfigController(TableData tableData) throws IOException {
-		return new ActionEntityController(this, tableData);
-	}
+    getActionProperties().forEach((key, value) -> {
+      builder.append("\t" + key + " = [" + value.get() + "]\n");
+    });
 
-	@Override
-	public void syncWith(JAXBEntity entity) {
-		if (!(entity instanceof ActionEntity)) {
-			return;
-		}
-		
-		ActionEntity ac = (ActionEntity) entity;
-		
-		setTitle(ac.getTitle());
-		setActionProvider(ac.getActionProvider());
-		getActionProperties().clear();
-		ac.getActionProperties().forEach(actionPropertiesProperty()::put);
-	}
-	
-	
+    return builder.toString();
+  }
+
+  @Override
+  public Controller getController() throws IOException {
+    return new ActionEntityController((Owl<ActionEntity>) getOwl());
+  }
+
+  public Controller getController(Owl<TableData> tableDataOwl) throws IOException {
+    return new ActionEntityController((Owl<ActionEntity>) getOwl(), tableDataOwl);
+  }
+
+  @Override
+  public void syncWith(OwlEntity entity) {
+    if (!(entity instanceof ActionEntity)) {
+      return;
+    }
+
+    ActionEntity ac = (ActionEntity) entity;
+
+    setActionProvider(ac.getActionProvider());
+    getActionProperties().clear();
+    ac.getActionProperties().forEach(actionPropertiesProperty()::put);
+  }
+
 
 
 }

@@ -1,8 +1,8 @@
 package space.sadfox.dataccess.dataccess;
 
-import space.sadfox.owlook.utils.JAXBEntityAdapter;
+import space.sadfox.owlook.owlery.OwlAdapter;
 
-public class TableDataAdapter extends JAXBEntityAdapter<TableData> {
+public class TableDataAdapter extends OwlAdapter<TableData> {
 
 	@Override
 	protected Class<TableData> getTarget() {

@@ -1,36 +1,36 @@
 package space.sadfox.dataccess.action;
 
-import java.io.IOException;
 import java.util.List;
 
-import jakarta.xml.bind.JAXBException;
 import space.sadfox.dataccess.dataccess.TableData;
+import space.sadfox.owlook.base.owl.Owl;
 import space.sadfox.owlook.moduleloader.ModuleLoader;
-import space.sadfox.owlook.utils.EntityLoader;
+import space.sadfox.owlook.owlery.OwlLoader;
+import space.sadfox.owlook.utils.Logger;
 
 public class ActionEntities {
-	public static Action createAction(ActionEntity actionEntity) throws ActionProviderNotFound {
+	public static Action createAction(Owl<ActionEntity> actionEntityOwl) throws ActionProviderNotFound {
+		return createAction(actionEntityOwl, null);
+	}
+
+	public static Action createAction(Owl<ActionEntity> actionEntityOwl, Owl<TableData> tableDataOwl) throws ActionProviderNotFound {
+		String currentActionIdentifier = actionEntityOwl.entity().getActionProvider();
 		for (ActionProvider ap : getActionProviders()) {
-			if (ap.getIdentifier().equals(actionEntity.getActionProvider())) {
-				return ap.createAction(actionEntity);
+			if (ap.getIdentifier().equals(currentActionIdentifier)) {
+				if (tableDataOwl == null) {
+					return ap.createAction(actionEntityOwl);
+				} else {
+					return ap.createAction(actionEntityOwl, tableDataOwl);
+				}
 			}
 		}
 		throw new ActionProviderNotFound();
 	}
 
-	public static Action createAction(ActionEntity actionEntity, TableData tableData) throws ActionProviderNotFound {
-		for (ActionProvider ap : getActionProviders()) {
-			if (ap.getIdentifier().equals(actionEntity.getActionProvider())) {
-				return ap.createAction(actionEntity, tableData);
-			}
-		}
-		throw new ActionProviderNotFound();
-	}
-
-	public static ActionEntity createActionEntity(ActionProvider provider) throws JAXBException, IOException {
-		ActionEntity actionEntity = EntityLoader.INSTANCE.createEntity(ActionEntity.class);
-		actionEntity.setActionProvider(provider.getIdentifier());
-		return actionEntity;
+	public static Owl<ActionEntity> createActionEntity(ActionProvider provider) throws Exception {
+		Owl<ActionEntity> actionEntityOwl = OwlLoader.INSTANCE.createOwl(ActionEntity.class);
+		actionEntityOwl.entity().setActionProvider(provider.getIdentifier());
+		return actionEntityOwl;
 	}
 
 	public static List<ActionProvider> getActionProviders() {
@@ -38,7 +38,13 @@ public class ActionEntities {
 
 	}
 
-	public static boolean deleteActionEntity(ActionEntity actionEntity) {
-		return EntityLoader.INSTANCE.deleteEntity(actionEntity);
+	public static boolean deleteActionEntity(Owl<ActionEntity> actionEntityOwl) {
+		try {
+			OwlLoader.INSTANCE.deleteOwl(actionEntityOwl);
+			return true;
+		} catch (Exception e) {
+			Logger.registerException(1, e);
+			return false;
+		}
 	}
 }
