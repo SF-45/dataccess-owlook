@@ -17,6 +17,7 @@ import javafx.collections.ObservableMap;
 import space.sadfox.dataccess.dataccess.TableData;
 import space.sadfox.owlook.base.owl.Owl;
 import space.sadfox.owlook.base.owl.OwlEntity;
+import space.sadfox.owlook.base.owl.OwlEntityHasNoContainingOwls;
 import space.sadfox.owlook.ui.base.Controllable;
 import space.sadfox.owlook.ui.base.Controller;
 
@@ -125,6 +126,11 @@ public class ActionEntity extends OwlEntity implements Controllable {
     setActionProvider(ac.getActionProvider());
     getActionProperties().clear();
     ac.getActionProperties().forEach(actionPropertiesProperty()::put);
+  }
+
+  @Override
+  public List<Owl<?>> getChildrenOwls() throws OwlEntityHasNoContainingOwls {
+    throw new OwlEntityHasNoContainingOwls();
   }
 
 

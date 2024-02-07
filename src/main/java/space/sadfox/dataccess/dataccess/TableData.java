@@ -21,6 +21,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import space.sadfox.owlook.base.owl.Owl;
 import space.sadfox.owlook.base.owl.OwlEntity;
+import space.sadfox.owlook.base.owl.OwlEntityHasNoContainingOwls;
 import space.sadfox.owlook.ui.base.Controllable;
 import space.sadfox.owlook.ui.base.Controller;
 
@@ -192,6 +193,11 @@ public class TableData extends OwlEntity implements Controllable {
       getFields().add(newField);
     });
 
+  }
+
+  @Override
+  public List<Owl<?>> getChildrenOwls() throws OwlEntityHasNoContainingOwls {
+    throw new OwlEntityHasNoContainingOwls();
   }
 
 }
