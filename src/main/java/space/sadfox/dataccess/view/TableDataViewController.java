@@ -32,7 +32,7 @@ import space.sadfox.dataccess.dataccess.TableData;
 import space.sadfox.dataccess.dataccess.TableDataController;
 import space.sadfox.owlook.base.owl.Owl;
 import space.sadfox.owlook.ui.base.FXMLController;
-import space.sadfox.owlook.utils.Logger;
+import space.sadfox.owlook.utils.Owlook;
 import space.sadfox.owlook.utils.Nullable;
 
 public class TableDataViewController extends FXMLController {
@@ -210,7 +210,7 @@ public class TableDataViewController extends FXMLController {
 				try {
 					new TableDataController(dataOwl).show();
 				} catch (IOException e) {
-					Logger.registerException(1, e);
+					Owlook.registerException(1, e);
 				}
 			});
 			tableDataMenuButton.getItems().add(new SeparatorMenuItem());

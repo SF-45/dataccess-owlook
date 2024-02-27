@@ -10,9 +10,9 @@ import java.util.List;
 import space.sadfox.dataccess.dataccess.core.DBHandler;
 import space.sadfox.owlook.base.owl.Owl;
 import space.sadfox.owlook.base.owl.OwlResource;
-import space.sadfox.owlook.logger.LogLevel;
-import space.sadfox.owlook.utils.Logger;
-import space.sadfox.owlook.utils.LoggerMessage;
+import space.sadfox.owlook.utils.Owlook;
+import space.sadfox.owlook.utils.LogLevel;
+import space.sadfox.owlook.utils.LogMessage;
 
 public class TableDataDao {
 
@@ -43,14 +43,14 @@ public class TableDataDao {
         try {
           insertDataEntity(entity, statement);
         } catch (SQLException e) {
-          Logger.registerException(1, e);
+          Owlook.registerException(1, e);
         }
 
       }
 
       tableData.entity().notifyDataUpdateListeners();
     } catch (SQLException | ParserProviderNotFound | IOException e) {
-      Logger.registerException(1, e);
+      Owlook.registerException(1, e);
     }
   }
 
@@ -110,7 +110,7 @@ public class TableDataDao {
         return true;
       }
     } catch (SQLException e) {
-      Logger.registerException(2, e);
+      Owlook.registerException(2, e);
     }
     return false;
 
@@ -121,10 +121,10 @@ public class TableDataDao {
         DBHandler handler = new DBHandler(res.resourcePath(dbName))) {
 
       if (!existData(handler.getConnection())) {
-        LoggerMessage message = new LoggerMessage(LogLevel.INFO);
+        LogMessage message = new LogMessage(LogLevel.INFO);
         message.setName("Try select not load data");
         message.setMessage("sql = [" + sql + "]");
-        Logger.registerMessage(message);
+        Owlook.registerMessage(message);
         return new DataEntity[0];
       }
 
@@ -149,7 +149,7 @@ public class TableDataDao {
       }
       return entities.toArray(new DataEntity[0]);
     } catch (SQLException | IOException e) {
-      Logger.registerException(1, e);
+      Owlook.registerException(1, e);
     }
     return new DataEntity[0];
   }

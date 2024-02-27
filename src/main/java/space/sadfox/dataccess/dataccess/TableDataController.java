@@ -31,7 +31,7 @@ import javafx.util.StringConverter;
 import space.sadfox.dataccess.ResourceTarget;
 import space.sadfox.owlook.base.owl.Owl;
 import space.sadfox.owlook.ui.base.FXMLController;
-import space.sadfox.owlook.utils.Logger;
+import space.sadfox.owlook.utils.Owlook;
 import space.sadfox.owlook.utils.StageFactory;
 
 public class TableDataController extends FXMLController {
@@ -127,7 +127,7 @@ public class TableDataController extends FXMLController {
         parserChoiseBox.getSelectionModel().getSelectedItem().getConfigController(getTableData())
             .show();
       } catch (IOException e) {
-        Logger.registerException(1, e);
+        Owlook.registerException(1, e);
       }
     });
 

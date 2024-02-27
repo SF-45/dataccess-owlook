@@ -6,7 +6,7 @@ import space.sadfox.dataccess.dataccess.TableData;
 import space.sadfox.owlook.base.owl.Owl;
 import space.sadfox.owlook.moduleloader.ModuleLoader;
 import space.sadfox.owlook.owlery.OwlLoader;
-import space.sadfox.owlook.utils.Logger;
+import space.sadfox.owlook.utils.Owlook;
 
 public class ActionEntities {
 	public static Action createAction(Owl<ActionEntity> actionEntityOwl) throws ActionProviderNotFound {
@@ -43,7 +43,7 @@ public class ActionEntities {
 			OwlLoader.INSTANCE.deleteOwl(actionEntityOwl);
 			return true;
 		} catch (Exception e) {
-			Logger.registerException(1, e);
+			Owlook.registerException(1, e);
 			return false;
 		}
 	}

@@ -2,14 +2,14 @@ package space.sadfox.dataccess.view;
 
 import space.sadfox.owlook.base.owl.Owl;
 import space.sadfox.owlook.owlery.OwlLoader;
-import space.sadfox.owlook.utils.Logger;
+import space.sadfox.owlook.utils.Owlook;
 
 public class TableDataViews {
   public static Owl<TableDataView> createTableDataView() {
     try {
       return OwlLoader.INSTANCE.createOwl(TableDataView.class);
     } catch (Exception e) {
-      Logger.registerException(1, e);
+      Owlook.registerException(1, e);
       return null;
     }
   }
@@ -19,7 +19,7 @@ public class TableDataViews {
       OwlLoader.INSTANCE.deleteOwl(viewOwl);
       return true;
     } catch (Exception e) {
-      Logger.registerException(1, e);
+      Owlook.registerException(1, e);
       return false;
     }
   }

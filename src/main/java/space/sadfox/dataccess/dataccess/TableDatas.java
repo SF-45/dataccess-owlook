@@ -5,7 +5,7 @@ import java.util.List;
 import space.sadfox.owlook.base.owl.Owl;
 import space.sadfox.owlook.moduleloader.ModuleLoader;
 import space.sadfox.owlook.owlery.OwlLoader;
-import space.sadfox.owlook.utils.Logger;
+import space.sadfox.owlook.utils.Owlook;
 
 public class TableDatas {
 	public static ParserProvider getParserProvider(String identifier) throws ParserProviderNotFound {
@@ -34,7 +34,7 @@ public class TableDatas {
 			OwlLoader.INSTANCE.deleteOwl(owl);
 			return true;
 		} catch (Exception e) {
-			Logger.registerException(1, e);
+			Owlook.registerException(1, e);
 			return false;
 		}
 	}

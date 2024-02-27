@@ -31,7 +31,7 @@ import space.sadfox.dataccess.dataccess.DataEntity;
 import space.sadfox.owlook.base.jaxb.ChangeHistoryListener;
 import space.sadfox.owlook.base.owl.Owl;
 import space.sadfox.owlook.base.owl.OwlEntity;
-import space.sadfox.owlook.utils.Logger;
+import space.sadfox.owlook.utils.Owlook;
 import space.sadfox.owlook.utils.StageFactory;
 
 public class TableViewForTableData extends TableView<DataEntity> {
@@ -68,7 +68,7 @@ public class TableViewForTableData extends TableView<DataEntity> {
 						try {
 							Thread.sleep(1);
 						} catch (InterruptedException e) {
-							Logger.registerException(2, e);
+							Owlook.registerException(2, e);
 						}
 					}
 					Platform.runLater(action);

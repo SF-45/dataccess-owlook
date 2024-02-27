@@ -7,14 +7,14 @@ import space.sadfox.dataccess.dataccess.TableData;
 import space.sadfox.dataccess.dataccess.TableDataDao;
 import space.sadfox.owlook.base.owl.Owl;
 import space.sadfox.owlook.owlery.OwlLoader;
-import space.sadfox.owlook.utils.Logger;
+import space.sadfox.owlook.utils.Owlook;
 
 public class TableDataFilters {
   public static Owl<TableDataFilter> createTableDataFilter() {
     try {
       return OwlLoader.INSTANCE.createOwl(TableDataFilter.class);
     } catch (Exception e) {
-      Logger.registerException(1, e);
+      Owlook.registerException(1, e);
       return null;
     }
   }
@@ -24,7 +24,7 @@ public class TableDataFilters {
       OwlLoader.INSTANCE.deleteOwl(owl);
       return true;
     } catch (Exception e) {
-      Logger.registerException(1, e);
+      Owlook.registerException(1, e);
       return false;
     }
   }
