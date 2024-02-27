@@ -1,6 +1,6 @@
 package space.sadfox.dataccess.dataccess;
 
-import java.nio.file.Path;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -9,34 +9,35 @@ import java.util.ArrayList;
 import java.util.List;
 import space.sadfox.dataccess.dataccess.core.DBHandler;
 import space.sadfox.owlook.base.owl.Owl;
+import space.sadfox.owlook.base.owl.OwlResource;
 import space.sadfox.owlook.logger.LogLevel;
 import space.sadfox.owlook.utils.Logger;
 import space.sadfox.owlook.utils.LoggerMessage;
 
 public class TableDataDao {
 
-  private Owl<TableData> tableData;
-  private Path dataBasePath;
+  private final Owl<TableData> tableData;
 
-  String tableName;
+  private final String tableName = "TABLEDATA";
+  private final String dbName = "TableDataDB";
+
 
   public TableDataDao(Owl<TableData> owl) {
     this.tableData = owl;
-
-    tableName = "TABLEDATA";
-    dataBasePath = owl.resourcePath("TableDataDB");
   }
 
   public DataEntity createDataEntity() {
-    return new DataEntity(getTableData().entity().getFields());
+    return new DataEntity(tableData.entity().getFields());
   }
 
   public void loadData() {
-    try (DBHandler handler = new DBHandler(dataBasePath)) {
+    try (OwlResource res = tableData.openResource();
+        DBHandler handler = new DBHandler(res.resourcePath(dbName))) {
+
       Statement statement = handler.getStatement();
       createNewTable(statement);
-      ParserProvider parser = getTableData().entity().getParserSafe();
-      List<DataEntity> data = parser.parse(getTableData());
+      ParserProvider parser = tableData.entity().getParserSafe();
+      List<DataEntity> data = parser.parse(tableData);
 
       for (DataEntity entity : data) {
         try {
@@ -47,19 +48,17 @@ public class TableDataDao {
 
       }
 
-      getTableData().entity().notifyDataUpdateListeners();
-
-    } catch (SQLException | ParserProviderNotFound e) {
+      tableData.entity().notifyDataUpdateListeners();
+    } catch (SQLException | ParserProviderNotFound | IOException e) {
       Logger.registerException(1, e);
     }
-
   }
 
   private void insertDataEntity(DataEntity dataEntity, Statement statement) throws SQLException {
     StringBuilder sql = new StringBuilder("INSERT INTO " + tableName);
     List<String> fields = new ArrayList<>();
     List<String> values = new ArrayList<>();
-    getTableData().entity().getFields().forEach(field -> {
+    tableData.entity().getFields().forEach(field -> {
       fields.add(field.getFieldName());
       values.add("'" + dataEntity.getValue(field) + "'");
     });
@@ -77,7 +76,7 @@ public class TableDataDao {
 
     String dataType = " VARCHAR (200)";
     List<String> fields = new ArrayList<>();
-    getTableData().entity().getFields().forEach(field -> {
+    tableData.entity().getFields().forEach(field -> {
       fields.add(field.getFieldName());
     });
 
@@ -96,7 +95,7 @@ public class TableDataDao {
 
   public Field addNewField() {
     Field field = new Field();
-    getTableData().entity().getFields().add(field);
+    tableData.entity().getFields().add(field);
     return field;
   }
 
@@ -118,7 +117,8 @@ public class TableDataDao {
   }
 
   public DataEntity[] selectAllWhere(String sql) {
-    try (DBHandler handler = new DBHandler(dataBasePath)) {
+    try (OwlResource res = tableData.openResource();
+        DBHandler handler = new DBHandler(res.resourcePath(dbName))) {
 
       if (!existData(handler.getConnection())) {
         LoggerMessage message = new LoggerMessage(LogLevel.INFO);
@@ -148,14 +148,10 @@ public class TableDataDao {
         entities.add(entity);
       }
       return entities.toArray(new DataEntity[0]);
-    } catch (SQLException e) {
+    } catch (SQLException | IOException e) {
       Logger.registerException(1, e);
     }
     return new DataEntity[0];
-  }
-
-  public Owl<TableData> getTableData() {
-    return tableData;
   }
 
 }
