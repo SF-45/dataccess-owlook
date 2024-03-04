@@ -10,9 +10,9 @@ import java.util.List;
 import space.sadfox.dataccess.dataccess.core.DBHandler;
 import space.sadfox.owlook.base.owl.Owl;
 import space.sadfox.owlook.base.owl.OwlResource;
+import space.sadfox.owlook.utils.OwlookMessage;
+import space.sadfox.owlook.utils.MessageLevel;
 import space.sadfox.owlook.utils.Owlook;
-import space.sadfox.owlook.utils.LogLevel;
-import space.sadfox.owlook.utils.LogMessage;
 
 public class TableDataDao {
 
@@ -121,7 +121,7 @@ public class TableDataDao {
         DBHandler handler = new DBHandler(res.resourcePath(dbName))) {
 
       if (!existData(handler.getConnection())) {
-        LogMessage message = new LogMessage(LogLevel.INFO);
+        OwlookMessage message = new OwlookMessage(MessageLevel.INFO);
         message.setName("Try select not load data");
         message.setMessage("sql = [" + sql + "]");
         Owlook.registerMessage(message);
