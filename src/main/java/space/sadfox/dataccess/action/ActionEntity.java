@@ -2,35 +2,32 @@ package space.sadfox.dataccess.action;
 
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 import jakarta.xml.bind.annotation.XmlAccessType;
 import jakarta.xml.bind.annotation.XmlAccessorType;
-import jakarta.xml.bind.annotation.XmlAttribute;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlSeeAlso;
 import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableMap;
 import space.sadfox.dataccess.dataccess.TableData;
+import space.sadfox.owlook.base.owl.LazyOwlEntity;
 import space.sadfox.owlook.base.owl.Owl;
 import space.sadfox.owlook.base.owl.OwlEntity;
-import space.sadfox.owlook.base.owl.OwlEntityHasNoContainingOwls;
 import space.sadfox.owlook.ui.base.Controllable;
 import space.sadfox.owlook.ui.base.Controller;
 
 @XmlAccessorType(XmlAccessType.NONE)
+@XmlSeeAlso(LazyOwlEntity.class)
 @XmlRootElement
-public class ActionEntity extends OwlEntity implements Controllable {
+public class ActionEntity extends LazyOwlEntity implements Controllable {
 
-  private StringProperty description = new SimpleStringProperty("");
-  private StringProperty actionProvider = new SimpleStringProperty("");
-  private ObservableMap<String, StringProperty> actionProperties =
-      FXCollections.observableHashMap();
+  private final StringProperty description = new SimpleStringProperty("");
+  private ActionProvider actionProvider;
 
-  @XmlElement(name = "description")
+  @XmlElement
   public String getDescription() {
     return descriptionProperty().get();
   }
@@ -43,76 +40,45 @@ public class ActionEntity extends OwlEntity implements Controllable {
     return description;
   }
 
-  @XmlAttribute(name = "actionProvider")
-  public String getActionProvider() {
-    return actionProvider.get();
-  }
-
-  public void setActionProvider(String actionProvider) {
-    this.actionProvider.set(actionProvider);
-  }
-
-  public StringProperty actionProviderProperty() {
+  @XmlElement
+  @XmlJavaTypeAdapter(ActionProviderAdapter.class)
+  public ActionProvider getActionProvider() {
     return actionProvider;
   }
 
-  @XmlElement(name = "properties")
-  @XmlJavaTypeAdapter(HashMapAdapter.class)
-  public HashMap<String, StringProperty> getActionProperties() {
-    return new HashMap<>(actionProperties);
+  public Optional<ActionProvider> getActionProviderSafe() {
+    if (getActionProvider() == null) {
+      return Optional.empty();
+    } else {
+      return Optional.of(getActionProvider());
+    }
   }
 
-  public void setActionProperties(HashMap<String, StringProperty> commandProperties) {
-    this.actionProperties = FXCollections.observableMap(commandProperties);
-  }
-
-  public ObservableMap<String, StringProperty> actionPropertiesProperty() {
-    return actionProperties;
+  void setActionProvider(ActionProvider actionProvider) {
+    this.actionProvider = actionProvider;
   }
 
   @Override
   public List<Object> getProperties() {
-    return Arrays.asList(actionProvider, actionProperties, description);
-  }
-
-  public StringProperty getActionProperty(String key, String defaultValue) {
-    if (actionProperties.containsKey(key)) {
-      return actionProperties.get(key);
-    } else {
-      StringProperty defaultValueProperty = new SimpleStringProperty(defaultValue);
-      actionProperties.put(key, defaultValueProperty);
-      return defaultValueProperty;
-    }
+    List<Object> props = super.getProperties();
+    props.addAll(Arrays.asList(actionProvider, description));
+    return props;
   }
 
   @Override
-  public void initialize() {
-
-  }
-
-  @Override
-  public String toString() {
-    StringBuilder builder = new StringBuilder("Action: " + getOwl().head().getTitle() + "\n");
-    builder.append("Action Provider: " + getActionProvider() + "\n\n");
-
-    builder.append("Description: " + getDescription() + "\n\n");
-
-    builder.append("Properties:\n");
-
-    getActionProperties().forEach((key, value) -> {
-      builder.append("\t" + key + " = [" + value.get() + "]\n");
-    });
-
-    return builder.toString();
-  }
-
-  @Override
+  @SuppressWarnings("unchecked")
   public Controller getController() throws IOException {
     return new ActionEntityController((Owl<ActionEntity>) getOwl());
   }
 
+  @SuppressWarnings("unchecked")
   public Controller getController(Owl<TableData> tableDataOwl) throws IOException {
     return new ActionEntityController((Owl<ActionEntity>) getOwl(), tableDataOwl);
+  }
+
+  @Override
+  public String getEntityName() {
+    return "TDAction";
   }
 
   @Override
@@ -120,19 +86,11 @@ public class ActionEntity extends OwlEntity implements Controllable {
     if (!(entity instanceof ActionEntity)) {
       return;
     }
+    super.syncWith(entity);
 
     ActionEntity ac = (ActionEntity) entity;
 
     setActionProvider(ac.getActionProvider());
-    getActionProperties().clear();
-    ac.getActionProperties().forEach(actionPropertiesProperty()::put);
+    setDescription(ac.getDescription());
   }
-
-  @Override
-  public List<Owl<?>> getChildrenOwls() throws OwlEntityHasNoContainingOwls {
-    throw new OwlEntityHasNoContainingOwls();
-  }
-
-
-
 }

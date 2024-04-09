@@ -1,7 +1,7 @@
 package space.sadfox.dataccess.action;
 
 import java.io.IOException;
-
+import java.util.Optional;
 import javafx.beans.binding.Bindings;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
@@ -14,77 +14,66 @@ import space.sadfox.dataccess.ResourceTarget;
 import space.sadfox.dataccess.dataccess.TableData;
 import space.sadfox.owlook.base.owl.Owl;
 import space.sadfox.owlook.ui.base.FXMLController;
-import space.sadfox.owlook.utils.Nullable;
 
 public class ActionEntityController extends FXMLController {
 
-	@FXML
-	private TextArea descriptionTextArea;
+  @FXML
+  private TextArea descriptionTextArea;
 
-	@FXML
-	private BorderPane rootBorderPane;
+  @FXML
+  private BorderPane rootBorderPane;
 
-	@FXML
-	private TextField titleTextBox;
+  @FXML
+  private TextField titleTextBox;
 
-	private Owl<ActionEntity> actionOwl;
+  private final Owl<ActionEntity> actionOwl;
 
-	private Owl<TableData> dataOwl;
+  private final Optional<Owl<TableData>> oDataOwl;
 
-	public ActionEntityController(Owl<ActionEntity> actionOwl) throws IOException {
-		super(ResourceTarget.class.getResource("fxml/edit-action.fxml"));
+  public ActionEntityController(Owl<ActionEntity> actionOwl) throws IOException {
+    super(ResourceTarget.class.getResource("fxml/edit-action.fxml"));
 
-		this.actionOwl = actionOwl;
+    this.actionOwl = actionOwl;
+    oDataOwl = Optional.empty();
 
-		init();
-	}
+    init();
+  }
 
-	public ActionEntityController(Owl<ActionEntity> actionOwl, Owl<TableData> dataOwl) throws IOException {
-		super(ResourceTarget.class.getResource("fxml/edit-action.fxml"));
+  public ActionEntityController(Owl<ActionEntity> actionOwl, Owl<TableData> dataOwl)
+      throws IOException {
+    super(ResourceTarget.class.getResource("fxml/edit-action.fxml"));
 
-		this.actionOwl = actionOwl;
-		this.dataOwl = dataOwl;
+    this.actionOwl = actionOwl;
+    this.oDataOwl = Optional.of(dataOwl);
 
-		init();
-	}
+    init();
+  }
 
-	private void init() {
-		titleTextBox.setText(getActionOwl().head().getTitle());
-		titleTextBox.textProperty().bindBidirectional(getActionOwl().head().titleProperty());
-		
-		stageTitle.bind(Bindings.concat("Edit Action [", getActionOwl().head().titleProperty(), "]"));
+  private void init() {
+    titleTextBox.setText(actionOwl.head().getTitle());
+    titleTextBox.textProperty().bindBidirectional(actionOwl.head().titleProperty());
 
-		descriptionTextArea.setText(getActionOwl().entity().getDescription());
-		descriptionTextArea.textProperty().bindBidirectional(getActionOwl().entity().descriptionProperty());
+    stageTitle.bind(Bindings.concat("Edit Action [", actionOwl.head().titleProperty(), "]"));
 
-		
-		try {
-			Parent parent;
-			try {
-				parent = ActionEntities.createAction(getActionOwl(), getTableDataOwl()).getConfigController()
-						.getParent();
-			} catch (Nullable e) {
-				parent = ActionEntities.createAction(getActionOwl()).getConfigController().getParent();
-			}
-			BorderPane.setMargin(parent, new Insets(5, 5, 5, 5));
-			rootBorderPane.setCenter(parent);
-		} catch (ActionProviderNotFound e) {
-			Label actionProviderNotFoundLabel = 
-					new Label("Action Provider not found [" + getActionOwl().entity().getActionProvider() + "]");
-			rootBorderPane.setCenter(actionProviderNotFoundLabel);
-			
-		}
+    descriptionTextArea.setText(actionOwl.entity().getDescription());
+    descriptionTextArea.textProperty().bindBidirectional(actionOwl.entity().descriptionProperty());
 
-	}
-
-	private Owl<ActionEntity> getActionOwl() {
-		return actionOwl;
-	}
-	
-	private Owl<TableData> getTableDataOwl() throws Nullable {
-		if (dataOwl == null) {
-			throw new Nullable();
-		}
-		return dataOwl;
-	}
+    Optional<ActionProvider> oProvider = actionOwl.entity().getActionProviderSafe();
+    if (oProvider.isPresent()) {
+      ActionProvider provider = oProvider.get();
+      Action action = null;
+      Parent parent;
+      if (oDataOwl.isPresent()) {
+        action = provider.createAction(actionOwl, oDataOwl.get());
+      } else {
+        action = provider.createAction(actionOwl);
+      }
+      parent = action.getConfigController().getParent();
+      BorderPane.setMargin(parent, new Insets(5, 5, 5, 5));
+      rootBorderPane.setCenter(parent);
+    } else {
+      Label actionProviderNotFoundLabel = new Label("Action Provider not found ");
+      rootBorderPane.setCenter(actionProviderNotFoundLabel);
+    }
+  }
 }

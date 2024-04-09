@@ -1,150 +1,190 @@
 package space.sadfox.dataccess.dataccess;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
+import jakarta.xml.bind.JAXBException;
 import javafx.beans.InvalidationListener;
+import javafx.beans.binding.Bindings;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.collections.FXCollections;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.fxml.FXML;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.ContextMenu;
+import javafx.scene.control.MenuButton;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.ComboBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.input.KeyEvent;
-import javafx.stage.FileChooser;
-import javafx.util.StringConverter;
+import javafx.scene.input.MouseEvent;
 import space.sadfox.dataccess.ResourceTarget;
 import space.sadfox.owlook.base.owl.Owl;
+import space.sadfox.owlook.base.owl.OwlEntityInitializeException;
+import space.sadfox.owlook.owlery.OwlLoader;
+import space.sadfox.owlook.owlery.OwlLoader.DeleteFlag;
 import space.sadfox.owlook.ui.base.FXMLController;
+import space.sadfox.owlook.ui.tools.MessageBox;
 import space.sadfox.owlook.utils.Owlook;
-import space.sadfox.owlook.utils.StageFactory;
 
 public class TableDataController extends FXMLController {
+  private class Actions {
+
+    public void createParserEntity(ParserProvider parserProvider) {
+      Owl<ParserEntity> parserEntity;
+      try {
+        parserEntity = Parsers.createParserEntity(parserProvider);
+        getTableData().entity().getParsers().add(parserEntity);
+        editParserEntity(parserEntity);
+      } catch (OwlEntityInitializeException e) {
+        Owlook.registerException(3, e);
+        MessageBox mBox = new MessageBox(AlertType.ERROR);
+        mBox.setTitle("Create Error");
+        mBox.setHeaderText("Owl Create Error");
+        mBox.setContentText("An error occurred while initializing Owl");
+        mBox.showAndWait();
+      } catch (IOException | JAXBException | ReflectiveOperationException e) {
+        Owlook.registerException(1, e);
+      }
+    }
+
+    public void editParserEntity(Owl<ParserEntity> parserEntity) {
+      Optional<ParserProvider> oParserProvider = parserEntity.entity().getParserProviderSafe();
+      if (oParserProvider.isPresent()) {
+        try {
+          oParserProvider.get().createController(parserEntity, tableData).show();
+        } catch (IOException e) {
+          Owlook.registerException(3, e);
+        }
+      } else {
+        MessageBox mBox = new MessageBox(AlertType.ERROR);
+        mBox.setTitle("Parser Provider not found");
+        mBox.setHeaderText("Parser Provider not found");
+      }
+    }
+
+    public void deleteParserEntity(Owl<ParserEntity> parserEntity) {
+      try {
+        OwlLoader.INSTANCE.deleteOwl(parserEntity, Arrays.asList(getTableData()),
+            DeleteFlag.NO_DEPENDENCIES);
+      } catch (IOException e) {
+        Owlook.registerException(1, e);
+      }
+    }
+
+    public void duplicateParserEntity(Owl<ParserEntity> parserEntity) {
+      try {
+        Owl<ParserEntity> newParserEntity = OwlLoader.INSTANCE.duplicateOwl(parserEntity);
+        String title = newParserEntity.head().getTitle();
+        newParserEntity.head().setTitle(title + "(duplicate)");
+        getTableData().entity().getParsers().add(newParserEntity);
+      } catch (IOException | JAXBException | ReflectiveOperationException e) {
+        Owlook.registerException(3, e);
+      } catch (OwlEntityInitializeException e) {
+        Owlook.registerException(3, e);
+        MessageBox mBox = new MessageBox(AlertType.ERROR);
+        mBox.setTitle("Create Error");
+        mBox.setHeaderText("Owl Create Error");
+        mBox.setContentText("An error occurred while initializing Owl");
+        mBox.showAndWait();
+      }
+
+    }
+
+    private void removeField(List<Field> fields) {
+      fields.forEach(i -> getTableData().entity().getFields().remove(i));
+    }
+
+    private void removeParserFilter(List<ParserFilter> parserFilters) {
+      parserFilters.forEach(
+          i -> fieldsTable.getSelectionModel().getSelectedItem().getParserFilters().remove(i));
+    }
+  }
 
   @FXML
-  private CheckBox autoUpdate;
+  private TableView<Owl<ParserEntity>> parsersTableView;
 
   @FXML
-  private Button configParser;
+  private Button editParserButton;
+
+  @FXML
+  private MenuButton createParserMenuButton;
+
+  @FXML
+  private Button deleteParserButton;
 
   @FXML
   private TableView<Field> fieldsTable;
 
   @FXML
-  private ChoiceBox<ParserProvider> parserChoiseBox;
+  private Button loadDataButton;
 
   @FXML
   private TableView<ParserFilter> parserFilterTable;
 
   @FXML
-  private TextField pathToDataTextField;
-
-  @FXML
   private TextField titleTextField;
 
-  @FXML
-  private Button selectPath;
-
-  private Owl<TableData> owl;
+  private final Actions ACTIONS = new Actions();
+  private final Owl<TableData> tableData;
   private TableDataDao tableDataDao;
 
   public TableDataController(Owl<TableData> owl) throws IOException {
     super(ResourceTarget.class.getResource("fxml/edit-tabledata.fxml"));
 
-    this.owl = owl;
+    this.tableData = owl;
 
     init();
+    initParserTable();
     initFieldsTable();
     initParserFilterTable();
 
     fieldsTable.setItems(getTableData().entity().fieldsProperty());
-    parserChoiseBox.setItems(FXCollections.observableList(TableDatas.getParserProviders()));
-    try {
-      ParserProvider selectProvider = getTableData().entity().getParserSafe();
-      for (ParserProvider provider : parserChoiseBox.getItems()) {
-        if (provider.getComponentName().equals(selectProvider.getComponentName())) {
-          parserChoiseBox.getSelectionModel().select(provider);
-          break;
-        }
-      }
-    } catch (ParserProviderNotFound e) {
-    }
-
+    parsersTableView.setItems(getTableData().entity().parsersProperty());
+    Parsers.getParserProviders().forEach(parserProvider -> {
+      MenuItem createParser = new MenuItem(parserProvider.getComponentName());
+      createParser.setOnAction(event -> ACTIONS.createParserEntity(parserProvider));
+      createParserMenuButton.getItems().add(createParser);
+    });
   }
 
   private void init() {
 
+    stageTitle.bind(Bindings.concat("Edit TableData [", tableData.head().titleProperty(), "]"));
+
     titleTextField.setText(getTableData().head().getTitle());
     titleTextField.textProperty().bindBidirectional(getTableData().head().titleProperty());
 
-    autoUpdate.setSelected(getTableData().entity().getAutoUpdate());
-    autoUpdate.selectedProperty().bindBidirectional(getTableData().entity().autoUpdateProperty());
-
-    pathToDataTextField.setText(getTableData().entity().getPathToData());
-    pathToDataTextField.textProperty()
-        .bindBidirectional(getTableData().entity().pathToDataProperty());
-
-    parserChoiseBox.setConverter(new StringConverter<ParserProvider>() {
-
-      @Override
-      public String toString(ParserProvider object) {
-        if (object == null)
-          return "Not found";
-        return object.getComponentName();
-      }
-
-      @Override
-      public ParserProvider fromString(String string) {
-        // TODO Auto-generated method stub
-        return null;
-      }
-
-    });
-    parserChoiseBox.getSelectionModel().selectedItemProperty()
-        .addListener((property, oldValue, newValue) -> {
-          if (oldValue == newValue)
-            return;
-          getTableData().entity().setParser(newValue);
-        });
-
-    configParser.setOnAction(event -> {
-      try {
-        parserChoiseBox.getSelectionModel().getSelectedItem().getConfigController(getTableData())
-            .show();
-      } catch (IOException e) {
-        Owlook.registerException(1, e);
+    editParserButton.setOnAction(event -> {
+      var selectionModel = parsersTableView.getSelectionModel();
+      if (!selectionModel.isEmpty()) {
+        var parserEntity = parsersTableView.getSelectionModel().getSelectedItem();
+        ACTIONS.editParserEntity(parserEntity);
       }
     });
 
-    selectPath.setOnAction(event -> {
-      FileChooser chooser = new FileChooser();
-      if (pathToDataTextField.getText() != null && pathToDataTextField.getText() != "") {
-        Path pathToData = Path.of(pathToDataTextField.getText());
-        if (pathToData.getParent() != null && Files.exists(pathToData.getParent())) {
-          chooser.setInitialDirectory(pathToData.getParent().toFile());
-        }
+    deleteParserButton.setOnAction(event -> {
+      var selectionModel = parsersTableView.getSelectionModel();
+      if (!selectionModel.isEmpty()) {
+        var parserEntity = parsersTableView.getSelectionModel().getSelectedItem();
+        ACTIONS.deleteParserEntity(parserEntity);
       }
-      File chooseFile = chooser.showOpenDialog(StageFactory.INSTANCE.getCurrentStage());
-      if (chooseFile == null)
-        return;
-      pathToDataTextField.setText(chooseFile.getPath());
     });
 
+    loadDataButton.setOnAction(event -> {
+      getTableDataDao().loadData();
+    });
   }
 
   private void initFieldsTable() {
@@ -224,7 +264,7 @@ public class TableDataController extends FXMLController {
         });
 
     removeField.setOnAction(event -> {
-      removeField(fieldsTable.getSelectionModel().getSelectedItems());
+      ACTIONS.removeField(fieldsTable.getSelectionModel().getSelectedItems());
     });
     fieldTableContextMenu.getItems().add(removeField);
 
@@ -241,7 +281,7 @@ public class TableDataController extends FXMLController {
             // tableData.getFields().remove(item);
             // selection.getSelectedItems().forEach(i ->
             // getTableData().getFields().remove(i));
-            removeField(selection.getSelectedItems());
+            ACTIONS.removeField(selection.getSelectedItems());
           }
           break;
         default:
@@ -288,7 +328,7 @@ public class TableDataController extends FXMLController {
           removePrefilter.setVisible(!parserFilterTable.getSelectionModel().isEmpty());
         });
     removePrefilter.setOnAction(event -> {
-      removeParserFilter(parserFilterTable.getSelectionModel().getSelectedItems());
+      ACTIONS.removeParserFilter(parserFilterTable.getSelectionModel().getSelectedItems());
     });
     prefiltersContextMenu.getItems().add(removePrefilter);
 
@@ -299,7 +339,7 @@ public class TableDataController extends FXMLController {
     parserFilterTable.addEventHandler(KeyEvent.KEY_PRESSED, keyEvent -> {
       switch (keyEvent.getCode()) {
         case DELETE:
-          removeParserFilter(parserFilterTable.getSelectionModel().getSelectedItems());
+          ACTIONS.removeParserFilter(parserFilterTable.getSelectionModel().getSelectedItems());
           break;
         default:
           break;
@@ -307,17 +347,71 @@ public class TableDataController extends FXMLController {
     });
   }
 
-  private void removeField(List<Field> fields) {
-    fields.forEach(i -> getTableData().entity().getFields().remove(i));
-  }
+  private void initParserTable() {
+    parsersTableView.setEditable(true);
 
-  private void removeParserFilter(List<ParserFilter> parserFilters) {
-    parserFilters.forEach(
-        i -> fieldsTable.getSelectionModel().getSelectedItem().getParserFilters().remove(i));
+    TableColumn<Owl<ParserEntity>, Boolean> enableColumn = new TableColumn<>("Enable");
+    enableColumn.setEditable(true);
+    enableColumn.setCellValueFactory(call -> call.getValue().entity().enableProperty());
+    enableColumn.setCellFactory(CheckBoxTableCell.forTableColumn(enableColumn));
+    parsersTableView.getColumns().add(enableColumn);
+
+    TableColumn<Owl<ParserEntity>, String> providerColumn = new TableColumn<>("Provider");
+    providerColumn.setCellValueFactory(callback -> {
+      var oParserProvider = callback.getValue().entity().getParserProviderSafe();
+      if (oParserProvider.isPresent()) {
+        return new SimpleStringProperty(oParserProvider.get().getComponentName());
+      } else {
+        return new SimpleStringProperty("N/A");
+      }
+    });
+    parsersTableView.getColumns().add(providerColumn);
+
+    TableColumn<Owl<ParserEntity>, String> titleColumn = new TableColumn<>("Title");
+    titleColumn.setCellValueFactory(call -> call.getValue().head().titleProperty());
+    titleColumn.setCellFactory(TextFieldTableCell.forTableColumn());
+    parsersTableView.getColumns().add(titleColumn);
+
+    parsersTableView.setRowFactory(call -> {
+      TableRow<Owl<ParserEntity>> row = new TableRow<>();
+      row.addEventHandler(MouseEvent.MOUSE_PRESSED, mouseEvent -> {
+        if (mouseEvent.isPrimaryButtonDown() && (mouseEvent.getClickCount() == 2)) {
+          ACTIONS.editParserEntity(row.getItem());
+        }
+      });
+      ContextMenu rowContextMenu = new ContextMenu();
+      row.setContextMenu(rowContextMenu);
+
+      row.setOnContextMenuRequested(event -> {
+        if (row.isEmpty()) {
+          rowContextMenu.hide();
+        }
+      });
+
+      MenuItem editParserEntityMenuItem = new MenuItem("Edit");
+      editParserEntityMenuItem.setOnAction(event -> {
+        ACTIONS.editParserEntity(row.getItem());
+      });
+      rowContextMenu.getItems().add(editParserEntityMenuItem);
+
+      MenuItem duplicateParserEntityMenuItem = new MenuItem("Duplicate");
+      duplicateParserEntityMenuItem.setOnAction(event -> {
+        ACTIONS.duplicateParserEntity(row.getItem());
+      });
+      rowContextMenu.getItems().add(duplicateParserEntityMenuItem);
+
+      MenuItem deleteParserEntityMenuItem = new MenuItem("Delete");
+      deleteParserEntityMenuItem.setOnAction(event -> {
+        ACTIONS.deleteParserEntity(row.getItem());
+      });
+      rowContextMenu.getItems().add(deleteParserEntityMenuItem);
+
+      return row;
+    });
   }
 
   private Owl<TableData> getTableData() {
-    return owl;
+    return tableData;
   }
 
   private TableDataDao getTableDataDao() {

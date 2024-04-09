@@ -1,5 +1,6 @@
 import space.sadfox.dataccess.ModuleProvider;
 import space.sadfox.dataccess.action.ActionEntity;
+import space.sadfox.dataccess.dataccess.ParserEntity;
 import space.sadfox.dataccess.dataccess.TableData;
 import space.sadfox.dataccess.filter.TableDataFilter;
 import space.sadfox.dataccess.view.TableDataView;
@@ -25,7 +26,7 @@ module dataccess {
 
 
   provides OwlookModule with ModuleProvider;
-  provides OwlEntity with TableData, TableDataFilter, TableDataView, ActionEntity;
+  provides OwlEntity with TableData, TableDataFilter, TableDataView, ActionEntity, ParserEntity;
 
 }
 
