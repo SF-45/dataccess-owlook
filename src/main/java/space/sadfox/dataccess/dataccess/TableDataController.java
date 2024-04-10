@@ -44,9 +44,9 @@ public class TableDataController extends FXMLController {
     public void createParserEntity(ParserProvider parserProvider) {
       Owl<ParserEntity> parserEntity;
       try {
-        parserEntity = Parsers.createParserEntity(parserProvider);
+        parserEntity = OwlLoader.INSTANCE.createHiddenOwl(ParserEntity.class);
+        parserEntity.entity().setParserProvider(parserProvider);
         getTableData().entity().getParsers().add(parserEntity);
-        editParserEntity(parserEntity);
       } catch (OwlEntityInitializeException e) {
         Owlook.registerException(3, e);
         MessageBox mBox = new MessageBox(AlertType.ERROR);
@@ -78,6 +78,7 @@ public class TableDataController extends FXMLController {
       try {
         OwlLoader.INSTANCE.deleteOwl(parserEntity, Arrays.asList(getTableData()),
             DeleteFlag.NO_DEPENDENCIES);
+        getTableData().entity().getParsers().remove(parserEntity);
       } catch (IOException e) {
         Owlook.registerException(1, e);
       }
@@ -86,8 +87,7 @@ public class TableDataController extends FXMLController {
     public void duplicateParserEntity(Owl<ParserEntity> parserEntity) {
       try {
         Owl<ParserEntity> newParserEntity = OwlLoader.INSTANCE.duplicateOwl(parserEntity);
-        String title = newParserEntity.head().getTitle();
-        newParserEntity.head().setTitle(title + "(duplicate)");
+        newParserEntity.head().setTitle(parserEntity.head().getTitle() + "(copy)");
         getTableData().entity().getParsers().add(newParserEntity);
       } catch (IOException | JAXBException | ReflectiveOperationException e) {
         Owlook.registerException(3, e);

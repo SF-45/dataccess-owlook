@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import jakarta.xml.bind.JAXBException;
 import jakarta.xml.bind.annotation.XmlAccessType;
 import jakarta.xml.bind.annotation.XmlAccessorType;
 import jakarta.xml.bind.annotation.XmlElement;
@@ -14,9 +15,11 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import space.sadfox.owlook.base.owl.Owl;
 import space.sadfox.owlook.base.owl.OwlEntity;
+import space.sadfox.owlook.base.owl.OwlEntityInitializeException;
 import space.sadfox.owlook.owlery.OwlLoader;
 import space.sadfox.owlook.ui.base.Controllable;
 import space.sadfox.owlook.ui.base.Controller;
+import space.sadfox.owlook.utils.Owlook;
 
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlRootElement
@@ -62,13 +65,7 @@ public class TableData extends OwlEntity implements Controllable {
   }
 
   @Override
-  public void initialize() {
-    OwlLoader.INSTANCE.addDeleteOwlListener(owl -> {
-      if (owl.entityClass().equals(ParserEntity.class)) {
-        getParsers().remove(owl);
-      }
-    });
-  }
+  public void initialize() {}
 
   public void addDataUpdateListener(DataUpdateListener dataUpdateListener) {
     dataUpdateListeners.add(dataUpdateListener);
@@ -96,7 +93,14 @@ public class TableData extends OwlEntity implements Controllable {
     TableData newTableData = (TableData) entity;
 
     parsers.clear();
-    parsers.addAll(newTableData.getParsers());
+    newTableData.getParsers().forEach(parserEntity -> {
+      try {
+        parsers.add(OwlLoader.INSTANCE.duplicateOwl(parserEntity));
+      } catch (IOException | JAXBException | ReflectiveOperationException
+          | OwlEntityInitializeException e) {
+        Owlook.registerException(1, e);
+      }
+    });
 
     getFields().clear();
     newTableData.getFields().forEach(field -> {
