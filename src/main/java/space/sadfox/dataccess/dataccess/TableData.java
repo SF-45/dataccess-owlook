@@ -17,13 +17,14 @@ import space.sadfox.owlook.base.owl.Owl;
 import space.sadfox.owlook.base.owl.OwlEntity;
 import space.sadfox.owlook.base.owl.OwlEntityInitializeException;
 import space.sadfox.owlook.owlery.OwlLoader;
+import space.sadfox.owlook.owlery.OwleryCreatable;
 import space.sadfox.owlook.ui.base.Controllable;
 import space.sadfox.owlook.ui.base.Controller;
 import space.sadfox.owlook.utils.Owlook;
 
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlRootElement
-public class TableData extends OwlEntity implements Controllable {
+public class TableData extends OwlEntity implements Controllable, OwleryCreatable {
 
   @FunctionalInterface
   public static interface DataUpdateListener {

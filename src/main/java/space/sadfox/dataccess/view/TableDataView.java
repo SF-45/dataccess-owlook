@@ -14,13 +14,14 @@ import space.sadfox.dataccess.dataccess.TableData;
 import space.sadfox.owlook.base.owl.Owl;
 import space.sadfox.owlook.base.owl.OwlEntity;
 import space.sadfox.owlook.base.owl.OwlEntityHasNoContainingOwls;
+import space.sadfox.owlook.owlery.OwleryCreatable;
 import space.sadfox.owlook.ui.base.Controllable;
 import space.sadfox.owlook.ui.base.Controller;
 import space.sadfox.owlook.utils.Nullable;
 
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlRootElement
-public class TableDataView extends OwlEntity implements Controllable {
+public class TableDataView extends OwlEntity implements Controllable, OwleryCreatable {
 
   private ObservableList<FieldView> fieldViews = FXCollections.observableArrayList();
 

@@ -1,6 +1,5 @@
 package space.sadfox.dataccess.dataccess;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import jakarta.xml.bind.annotation.XmlAccessType;
@@ -14,15 +13,12 @@ import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import space.sadfox.owlook.base.owl.LazyOwlEntity;
-import space.sadfox.owlook.base.owl.Owl;
 import space.sadfox.owlook.base.owl.OwlEntity;
-import space.sadfox.owlook.ui.base.Controllable;
-import space.sadfox.owlook.ui.base.Controller;
 
 @XmlSeeAlso(LazyOwlEntity.class)
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
-public class ParserEntity extends LazyOwlEntity implements Controllable {
+public class ParserEntity extends LazyOwlEntity {
 
   private final ObjectProperty<ParserProvider> parserProvider = new SimpleObjectProperty<>();
   private final BooleanProperty enable = new SimpleBooleanProperty(false);
@@ -84,15 +80,6 @@ public class ParserEntity extends LazyOwlEntity implements Controllable {
   @Override
   public String getEntityName() {
     return "TDParser";
-  }
-
-  @Override
-  public Controller getController() throws IOException, ParserProviderNotFound {
-    if (getParserProviderSafe().isPresent()) {
-      return getParserProvider().createController((Owl<ParserEntity>) getOwl());
-    } else {
-      throw new ParserProviderNotFound("ParserProviderNotFound");
-    }
   }
 
 }
