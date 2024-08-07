@@ -50,7 +50,7 @@ public class TableDataDao {
           ParserTask task = parserProvider.createParser(parserEntity, tableData);
           task.exceptionProperty().addListener((property, oldValue, newValue) -> {
             if (newValue != null) {
-              Owlook.registerException(2, newValue);
+              Owlook.registerException(newValue);
             }
           });
           progressDialog.addTask(task);
@@ -79,7 +79,7 @@ public class TableDataDao {
       try {
         parseRezult.addAll(task.get());
       } catch (ExecutionException | InterruptedException e) {
-        Owlook.registerException(3, e);
+        Owlook.registerException(e);
       }
     });
 
@@ -105,7 +105,7 @@ public class TableDataDao {
     try {
       Files.deleteIfExists(tempDBFile);
     } catch (IOException e) {
-      Owlook.registerException(3, e);
+      Owlook.registerException(e);
     }
     try (DBHandler handler = new DBHandler(tempDir.resolve(tempDBName))) {
       createNewTable(handler.getStatement());
@@ -114,12 +114,12 @@ public class TableDataDao {
         try {
           insertDataEntity(dataEntity, handler.getStatement());
         } catch (SQLException e) {
-          Owlook.registerException(3, e);
+          Owlook.registerException(e);
         }
       });
 
     } catch (SQLException e) {
-      Owlook.registerException(1, e);
+      Owlook.registerException(e);
     }
 
     try (OwlResource oRes = tableData.openResource()) {
@@ -128,7 +128,7 @@ public class TableDataDao {
         i.transferTo(o);
       }
     } catch (IOException e) {
-      Owlook.registerException(1, e);
+      Owlook.registerException(e);
     }
     tableData.entity().notifyDataUpdateListeners();
 
@@ -234,7 +234,7 @@ public class TableDataDao {
         return true;
       }
     } catch (SQLException e) {
-      Owlook.registerException(2, e);
+      Owlook.registerException(e);
     }
     return false;
 
@@ -250,7 +250,7 @@ public class TableDataDao {
 
       pathToDBInOwl = res.resourcePath(dbName).toString();
     } catch (IOException e) {
-      Owlook.registerException(1, e);
+      Owlook.registerException(e);
     }
     try (DBHandler handler = new DBHandler(tableData.location(), pathToDBInOwl)) {
       if (!existData(handler.getConnection())) {
@@ -282,7 +282,7 @@ public class TableDataDao {
       }
       return entities.toArray(new DataEntity[0]);
     } catch (SQLException e) {
-      Owlook.registerException(1, e);
+      Owlook.registerException(e);
     }
     return new DataEntity[0];
   }

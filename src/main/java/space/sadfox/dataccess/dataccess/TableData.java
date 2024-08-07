@@ -99,7 +99,7 @@ public class TableData extends OwlEntity implements Controllable, OwleryCreatabl
         parsers.add(OwlLoader.INSTANCE.duplicateOwl(parserEntity));
       } catch (IOException | JAXBException | ReflectiveOperationException
           | OwlEntityInitializeException e) {
-        Owlook.registerException(1, e);
+        Owlook.registerException(e);
       }
     });
 

@@ -14,7 +14,7 @@ public class TableDataFilters {
     try {
       return OwlLoader.INSTANCE.createOwl(TableDataFilter.class);
     } catch (Exception e) {
-      Owlook.registerException(1, e);
+      Owlook.registerException(e);
       return null;
     }
   }
@@ -24,7 +24,7 @@ public class TableDataFilters {
       OwlLoader.INSTANCE.deleteOwl(owl);
       return true;
     } catch (Exception e) {
-      Owlook.registerException(1, e);
+      Owlook.registerException(e);
       return false;
     }
   }

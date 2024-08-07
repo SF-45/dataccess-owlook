@@ -48,14 +48,14 @@ public class TableDataController extends FXMLController {
         parserEntity.entity().setParserProvider(parserProvider);
         getTableData().entity().getParsers().add(parserEntity);
       } catch (OwlEntityInitializeException e) {
-        Owlook.registerException(3, e);
+        Owlook.registerException(e);
         MessageBox mBox = new MessageBox(AlertType.ERROR);
         mBox.setTitle("Create Error");
         mBox.setHeaderText("Owl Create Error");
         mBox.setContentText("An error occurred while initializing Owl");
         mBox.showAndWait();
       } catch (IOException | JAXBException | ReflectiveOperationException e) {
-        Owlook.registerException(1, e);
+        Owlook.registerException(e);
       }
     }
 
@@ -65,7 +65,7 @@ public class TableDataController extends FXMLController {
         try {
           oParserProvider.get().createController(parserEntity, tableData).show();
         } catch (IOException e) {
-          Owlook.registerException(3, e);
+          Owlook.registerException(e);
         }
       } else {
         MessageBox mBox = new MessageBox(AlertType.ERROR);
@@ -80,7 +80,7 @@ public class TableDataController extends FXMLController {
             DeleteFlag.NO_DEPENDENCIES);
         getTableData().entity().getParsers().remove(parserEntity);
       } catch (IOException e) {
-        Owlook.registerException(1, e);
+        Owlook.registerException(e);
       }
     }
 
@@ -90,9 +90,9 @@ public class TableDataController extends FXMLController {
         newParserEntity.head().setTitle(parserEntity.head().getTitle() + "(copy)");
         getTableData().entity().getParsers().add(newParserEntity);
       } catch (IOException | JAXBException | ReflectiveOperationException e) {
-        Owlook.registerException(3, e);
+        Owlook.registerException(e);
       } catch (OwlEntityInitializeException e) {
-        Owlook.registerException(3, e);
+        Owlook.registerException(e);
         MessageBox mBox = new MessageBox(AlertType.ERROR);
         mBox.setTitle("Create Error");
         mBox.setHeaderText("Owl Create Error");

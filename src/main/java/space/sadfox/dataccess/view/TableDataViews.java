@@ -9,7 +9,7 @@ public class TableDataViews {
     try {
       return OwlLoader.INSTANCE.createOwl(TableDataView.class);
     } catch (Exception e) {
-      Owlook.registerException(1, e);
+      Owlook.registerException(e);
       return null;
     }
   }
@@ -19,7 +19,7 @@ public class TableDataViews {
       OwlLoader.INSTANCE.deleteOwl(viewOwl);
       return true;
     } catch (Exception e) {
-      Owlook.registerException(1, e);
+      Owlook.registerException(e);
       return false;
     }
   }

@@ -210,7 +210,7 @@ public class TableDataViewController extends FXMLController {
 				try {
 					new TableDataController(dataOwl).show();
 				} catch (IOException e) {
-					Owlook.registerException(1, e);
+					Owlook.registerException(e);
 				}
 			});
 			tableDataMenuButton.getItems().add(new SeparatorMenuItem());

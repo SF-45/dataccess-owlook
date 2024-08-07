@@ -16,7 +16,7 @@ public class ActionProviderAdapter extends XmlAdapter<String, ActionProvider> {
       message.setName("Owl Load Error");
       message.setMessage("While loading Owl, the provider was not found");
       Owlook.notificate(message);
-      Owlook.registerException(3, e);
+      Owlook.registerException(e);
       throw e;
     }
   }
