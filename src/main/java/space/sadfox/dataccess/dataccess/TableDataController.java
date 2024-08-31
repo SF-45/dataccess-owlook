@@ -151,7 +151,7 @@ public class TableDataController extends FXMLController {
     initParserFilterTable();
 
     fieldsTable.setItems(getTableData().entity().fieldsProperty());
-    parsersTableView.setItems(getTableData().entity().parsersProperty());
+    parsersTableView.setItems(getTableData().entity().getParsers());
     Parsers.getParserProviders().forEach(parserProvider -> {
       MenuItem createParser = new MenuItem(parserProvider.getComponentName());
       createParser.setOnAction(event -> ACTIONS.createParserEntity(parserProvider));

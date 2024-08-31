@@ -68,12 +68,12 @@ public class ActionEntity extends LazyOwlEntity implements Controllable {
   @Override
   @SuppressWarnings("unchecked")
   public Controller getController() throws IOException {
-    return new ActionEntityController((Owl<ActionEntity>) getOwl());
+    return new ActionEntityController((Owl<ActionEntity>) thisOwl());
   }
 
   @SuppressWarnings("unchecked")
   public Controller getController(Owl<TableData> tableDataOwl) throws IOException {
-    return new ActionEntityController((Owl<ActionEntity>) getOwl(), tableDataOwl);
+    return new ActionEntityController((Owl<ActionEntity>) thisOwl(), tableDataOwl);
   }
 
   @Override

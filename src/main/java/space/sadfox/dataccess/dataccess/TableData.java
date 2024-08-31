@@ -16,7 +16,10 @@ import javafx.collections.ObservableList;
 import space.sadfox.owlook.base.owl.Owl;
 import space.sadfox.owlook.base.owl.OwlEntity;
 import space.sadfox.owlook.base.owl.OwlEntityInitializeException;
+import space.sadfox.owlook.owlery.OwlDependence;
 import space.sadfox.owlook.owlery.OwlLoader;
+import space.sadfox.owlook.owlery.OwlReferenceList;
+import space.sadfox.owlook.owlery.OwlReferenceListAdapter;
 import space.sadfox.owlook.owlery.OwleryCreatable;
 import space.sadfox.owlook.ui.base.Controllable;
 import space.sadfox.owlook.ui.base.Controller;
@@ -31,20 +34,22 @@ public class TableData extends OwlEntity implements Controllable, OwleryCreatabl
     void update();
   }
 
-  private final ObservableList<Owl<ParserEntity>> parsers = FXCollections.observableArrayList();
+  private OwlReferenceList<ParserEntity> parsers = new OwlReferenceList<>(ParserEntity.class);
 
   private ObservableList<Field> fields;
 
   private final List<DataUpdateListener> dataUpdateListeners = new ArrayList<>();
 
   @XmlElement
-  @XmlJavaTypeAdapter(ParserEntityAdapter.class)
-  public List<Owl<ParserEntity>> getParsers() {
+  @OwlDependence
+  @XmlJavaTypeAdapter(OwlReferenceListAdapter.class)
+  public OwlReferenceList<ParserEntity> getParsers() {
     return parsers;
   }
 
-  public ObservableList<Owl<ParserEntity>> parsersProperty() {
-    return parsers;
+  @SuppressWarnings("unused")
+  private void setParsers(OwlReferenceList<ParserEntity> parsers) {
+    this.parsers = parsers;
   }
 
   @XmlElementWrapper(name = "fields")
@@ -62,7 +67,7 @@ public class TableData extends OwlEntity implements Controllable, OwleryCreatabl
 
   @Override
   public List<Object> getProperties() {
-    return Arrays.asList(fieldsProperty(), parsersProperty());
+    return Arrays.asList(fieldsProperty(), getParsers());
   }
 
   @Override
@@ -82,7 +87,7 @@ public class TableData extends OwlEntity implements Controllable, OwleryCreatabl
 
   @Override
   public Controller getController() throws IOException {
-    return new TableDataController((Owl<TableData>) getOwl());
+    return new TableDataController((Owl<TableData>) thisOwl());
   }
 
   @Override

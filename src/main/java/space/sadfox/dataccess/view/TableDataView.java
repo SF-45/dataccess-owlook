@@ -17,7 +17,6 @@ import space.sadfox.owlook.base.owl.OwlEntityHasNoContainingOwls;
 import space.sadfox.owlook.owlery.OwleryCreatable;
 import space.sadfox.owlook.ui.base.Controllable;
 import space.sadfox.owlook.ui.base.Controller;
-import space.sadfox.owlook.utils.Nullable;
 
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlRootElement
@@ -48,7 +47,7 @@ public class TableDataView extends OwlEntity implements Controllable, OwleryCrea
   @Override
   public String toString() {
     StringBuilder builder =
-        new StringBuilder("TableDataView: " + getOwl().head().getTitle() + "\n\n");
+        new StringBuilder("TableDataView: " + thisOwl().head().getTitle() + "\n\n");
     builder.append("FieldViews:\n");
 
     for (FieldView view : getFieldViews()) {
@@ -60,11 +59,11 @@ public class TableDataView extends OwlEntity implements Controllable, OwleryCrea
 
   @Override
   public Controller getController() throws IOException {
-    return new TableDataViewController((Owl<TableDataView>) getOwl());
+    return new TableDataViewController((Owl<TableDataView>) thisOwl());
   }
 
-  public Controller getController(Owl<TableData> dataOwl) throws IOException, Nullable {
-    return new TableDataViewController((Owl<TableDataView>) getOwl(), dataOwl);
+  public Controller getController(Owl<TableData> dataOwl) throws IOException {
+    return new TableDataViewController((Owl<TableDataView>) thisOwl(), dataOwl);
   }
 
   @Override
