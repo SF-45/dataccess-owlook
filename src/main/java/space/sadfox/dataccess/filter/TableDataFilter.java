@@ -13,7 +13,6 @@ import javafx.collections.ObservableList;
 import space.sadfox.dataccess.dataccess.TableData;
 import space.sadfox.owlook.base.owl.Owl;
 import space.sadfox.owlook.base.owl.OwlEntity;
-import space.sadfox.owlook.base.owl.OwlEntityHasNoContainingOwls;
 import space.sadfox.owlook.owlery.OwleryCreatable;
 import space.sadfox.owlook.ui.base.Controllable;
 import space.sadfox.owlook.ui.base.Controller;
@@ -84,12 +83,4 @@ public class TableDataFilter extends OwlEntity implements Controllable, OwleryCr
       getFilters().add(newFilter);
     });
   }
-
-  @Override
-  public List<Owl<?>> getChildrenOwls() throws OwlEntityHasNoContainingOwls {
-    throw new OwlEntityHasNoContainingOwls();
-  }
-
-
-
 }

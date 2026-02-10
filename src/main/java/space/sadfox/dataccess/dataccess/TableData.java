@@ -16,7 +16,6 @@ import javafx.collections.ObservableList;
 import space.sadfox.owlook.base.owl.Owl;
 import space.sadfox.owlook.base.owl.OwlEntity;
 import space.sadfox.owlook.base.owl.OwlEntityInitializeException;
-import space.sadfox.owlook.owlery.OwlDependence;
 import space.sadfox.owlook.owlery.OwlLoader;
 import space.sadfox.owlook.owlery.OwlReferenceList;
 import space.sadfox.owlook.owlery.OwlReferenceListAdapter;
@@ -41,7 +40,6 @@ public class TableData extends OwlEntity implements Controllable, OwleryCreatabl
   private final List<DataUpdateListener> dataUpdateListeners = new ArrayList<>();
 
   @XmlElement
-  @OwlDependence
   @XmlJavaTypeAdapter(OwlReferenceListAdapter.class)
   public OwlReferenceList<ParserEntity> getParsers() {
     return parsers;
@@ -71,7 +69,12 @@ public class TableData extends OwlEntity implements Controllable, OwleryCreatabl
   }
 
   @Override
-  public void initialize() {}
+  public void initialize() throws OwlEntityInitializeException {
+    boolean pP = parsers.setParent(thisOwl());
+    if (!pP) {
+      throw new OwlEntityInitializeException("Parent is not set");
+    }
+  }
 
   public void addDataUpdateListener(DataUpdateListener dataUpdateListener) {
     dataUpdateListeners.add(dataUpdateListener);
@@ -127,10 +130,4 @@ public class TableData extends OwlEntity implements Controllable, OwleryCreatabl
     });
 
   }
-
-  @Override
-  public List<Owl<?>> getChildrenOwls() {
-    return new ArrayList<>(getParsers());
-  }
-
 }
