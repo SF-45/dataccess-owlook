@@ -1,27 +1,27 @@
 package space.sadfox.dataccess.dataccess;
 
-public class ParseError extends Exception {
+public class ParserException extends Exception {
 
   private static final long serialVersionUID = -2519364882381750347L;
 
-  public ParseError() {
+  public ParserException() {
     super();
   }
 
-  public ParseError(String message, Throwable cause, boolean enableSuppression,
+  public ParserException(String message, Throwable cause, boolean enableSuppression,
       boolean writableStackTrace) {
     super(message, cause, enableSuppression, writableStackTrace);
   }
 
-  public ParseError(String message, Throwable cause) {
+  public ParserException(String message, Throwable cause) {
     super(message, cause);
   }
 
-  public ParseError(String message) {
+  public ParserException(String message) {
     super(message);
   }
 
-  public ParseError(Throwable cause) {
+  public ParserException(Throwable cause) {
     super(cause);
   }
 
