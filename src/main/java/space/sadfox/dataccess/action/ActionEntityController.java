@@ -1,7 +1,7 @@
 package space.sadfox.dataccess.action;
 
-import java.io.IOException;
 import java.util.Optional;
+
 import javafx.beans.binding.Bindings;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
@@ -14,6 +14,7 @@ import space.sadfox.dataccess.ResourceTarget;
 import space.sadfox.dataccess.dataccess.TableData;
 import space.sadfox.owlook.base.owl.Owl;
 import space.sadfox.owlook.ui.base.FXMLController;
+import space.sadfox.owlook.ui.base.FXMLControllerException;
 
 public class ActionEntityController extends FXMLController {
 
@@ -30,7 +31,7 @@ public class ActionEntityController extends FXMLController {
 
   private final Optional<Owl<TableData>> oDataOwl;
 
-  public ActionEntityController(Owl<ActionEntity> actionOwl) throws IOException {
+  public ActionEntityController(Owl<ActionEntity> actionOwl) throws FXMLControllerException {
     super(ResourceTarget.class.getResource("fxml/edit-action.fxml"));
 
     this.actionOwl = actionOwl;
@@ -40,7 +41,7 @@ public class ActionEntityController extends FXMLController {
   }
 
   public ActionEntityController(Owl<ActionEntity> actionOwl, Owl<TableData> dataOwl)
-      throws IOException {
+      throws FXMLControllerException {
     super(ResourceTarget.class.getResource("fxml/edit-action.fxml"));
 
     this.actionOwl = actionOwl;

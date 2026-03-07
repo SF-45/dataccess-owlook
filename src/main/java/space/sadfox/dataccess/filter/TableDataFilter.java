@@ -16,6 +16,7 @@ import space.sadfox.owlook.base.owl.OwlEntity;
 import space.sadfox.owlook.owlery.OwleryCreatable;
 import space.sadfox.owlook.ui.base.Controllable;
 import space.sadfox.owlook.ui.base.Controller;
+import space.sadfox.owlook.ui.base.ControllerException;
 
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlRootElement
@@ -45,8 +46,7 @@ public class TableDataFilter extends OwlEntity implements Controllable, OwleryCr
 
   @Override
   public String toString() {
-    StringBuilder builder =
-        new StringBuilder("TableDataFilter: " + thisOwl().head().getTitle() + "\n\n");
+    StringBuilder builder = new StringBuilder("TableDataFilter: " + thisOwl().head().getTitle() + "\n\n");
     builder.append("Filters:\n");
     for (Filter f : getFilters()) {
       builder
@@ -56,11 +56,11 @@ public class TableDataFilter extends OwlEntity implements Controllable, OwleryCr
   }
 
   @Override
-  public Controller getController() throws IOException {
+  public Controller getController() throws ControllerException {
     return new TableDataFilterController((Owl<TableDataFilter>) thisOwl());
   }
 
-  public Controller getController(Owl<TableData> tableDataOwl) throws IOException {
+  public Controller getController(Owl<TableData> tableDataOwl) throws ControllerException {
     return new TableDataFilterController((Owl<TableDataFilter>) thisOwl(), tableDataOwl);
   }
 

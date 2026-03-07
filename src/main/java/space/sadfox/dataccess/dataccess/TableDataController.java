@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+
 import jakarta.xml.bind.JAXBException;
 import javafx.beans.InvalidationListener;
 import javafx.beans.binding.Bindings;
@@ -34,6 +35,7 @@ import space.sadfox.owlook.base.owl.Owl;
 import space.sadfox.owlook.base.owl.OwlEntityInitializeException;
 import space.sadfox.owlook.owlery.OwlLoader;
 import space.sadfox.owlook.owlery.OwlLoader.DeleteFlag;
+import space.sadfox.owlook.ui.base.ControllerException;
 import space.sadfox.owlook.ui.base.FXMLController;
 import space.sadfox.owlook.ui.tools.MessageBox;
 import space.sadfox.owlook.utils.Owlook;
@@ -64,7 +66,7 @@ public class TableDataController extends FXMLController {
       if (oParserProvider.isPresent()) {
         try {
           oParserProvider.get().createController(parserEntity, tableData).show();
-        } catch (IOException e) {
+        } catch (ControllerException e) {
           Owlook.registerException(e);
         }
       } else {
@@ -140,7 +142,7 @@ public class TableDataController extends FXMLController {
   private final Owl<TableData> tableData;
   private TableDataDao tableDataDao;
 
-  public TableDataController(Owl<TableData> owl) throws IOException {
+  public TableDataController(Owl<TableData> owl) throws ControllerException {
     super(ResourceTarget.class.getResource("fxml/edit-tabledata.fxml"));
 
     this.tableData = owl;

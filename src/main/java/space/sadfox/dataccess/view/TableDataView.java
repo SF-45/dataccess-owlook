@@ -1,8 +1,8 @@
 package space.sadfox.dataccess.view;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+
 import jakarta.xml.bind.annotation.XmlAccessType;
 import jakarta.xml.bind.annotation.XmlAccessorType;
 import jakarta.xml.bind.annotation.XmlElement;
@@ -16,6 +16,7 @@ import space.sadfox.owlook.base.owl.OwlEntity;
 import space.sadfox.owlook.owlery.OwleryCreatable;
 import space.sadfox.owlook.ui.base.Controllable;
 import space.sadfox.owlook.ui.base.Controller;
+import space.sadfox.owlook.ui.base.ControllerException;
 
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlRootElement
@@ -45,8 +46,7 @@ public class TableDataView extends OwlEntity implements Controllable, OwleryCrea
 
   @Override
   public String toString() {
-    StringBuilder builder =
-        new StringBuilder("TableDataView: " + thisOwl().head().getTitle() + "\n\n");
+    StringBuilder builder = new StringBuilder("TableDataView: " + thisOwl().head().getTitle() + "\n\n");
     builder.append("FieldViews:\n");
 
     for (FieldView view : getFieldViews()) {
@@ -57,11 +57,11 @@ public class TableDataView extends OwlEntity implements Controllable, OwleryCrea
   }
 
   @Override
-  public Controller getController() throws IOException {
+  public Controller getController() throws ControllerException {
     return new TableDataViewController((Owl<TableDataView>) thisOwl());
   }
 
-  public Controller getController(Owl<TableData> dataOwl) throws IOException {
+  public Controller getController(Owl<TableData> dataOwl) throws ControllerException {
     return new TableDataViewController((Owl<TableDataView>) thisOwl(), dataOwl);
   }
 

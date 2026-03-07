@@ -22,6 +22,7 @@ import space.sadfox.owlook.owlery.OwlReferenceListAdapter;
 import space.sadfox.owlook.owlery.OwleryCreatable;
 import space.sadfox.owlook.ui.base.Controllable;
 import space.sadfox.owlook.ui.base.Controller;
+import space.sadfox.owlook.ui.base.ControllerException;
 import space.sadfox.owlook.utils.Owlook;
 
 @XmlAccessorType(XmlAccessType.NONE)
@@ -89,7 +90,8 @@ public class TableData extends OwlEntity implements Controllable, OwleryCreatabl
   }
 
   @Override
-  public Controller getController() throws IOException {
+  @SuppressWarnings("unchecked")
+  public Controller getController() throws ControllerException {
     return new TableDataController((Owl<TableData>) thisOwl());
   }
 

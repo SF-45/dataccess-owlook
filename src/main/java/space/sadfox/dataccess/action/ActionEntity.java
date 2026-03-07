@@ -1,9 +1,9 @@
 package space.sadfox.dataccess.action;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+
 import jakarta.xml.bind.annotation.XmlAccessType;
 import jakarta.xml.bind.annotation.XmlAccessorType;
 import jakarta.xml.bind.annotation.XmlElement;
@@ -18,6 +18,7 @@ import space.sadfox.owlook.base.owl.Owl;
 import space.sadfox.owlook.base.owl.OwlEntity;
 import space.sadfox.owlook.ui.base.Controllable;
 import space.sadfox.owlook.ui.base.Controller;
+import space.sadfox.owlook.ui.base.ControllerException;
 
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlSeeAlso(LazyOwlEntity.class)
@@ -67,12 +68,12 @@ public class ActionEntity extends LazyOwlEntity implements Controllable {
 
   @Override
   @SuppressWarnings("unchecked")
-  public Controller getController() throws IOException {
+  public Controller getController() throws ControllerException {
     return new ActionEntityController((Owl<ActionEntity>) thisOwl());
   }
 
   @SuppressWarnings("unchecked")
-  public Controller getController(Owl<TableData> tableDataOwl) throws IOException {
+  public Controller getController(Owl<TableData> tableDataOwl) throws ControllerException {
     return new ActionEntityController((Owl<ActionEntity>) thisOwl(), tableDataOwl);
   }
 
