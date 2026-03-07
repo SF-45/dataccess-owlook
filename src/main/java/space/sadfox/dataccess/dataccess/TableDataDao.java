@@ -46,18 +46,23 @@ public class TableDataDao {
       if (parserEntity.entity().isEnable()) {
         var oParserProvider = parserEntity.entity().getParserProviderSafe();
         if (oParserProvider.isPresent()) {
-          ParserProvider parserProvider = oParserProvider.get();
-          ParserTask task = parserProvider.createParser(parserEntity, tableData);
-          task.exceptionProperty().addListener((property, oldValue, newValue) -> {
-            if (newValue != null) {
-              Owlook.registerException(newValue);
-            }
-          });
-          progressDialog.addTask(task);
-          Thread th = new Thread(task);
-          th.setDaemon(true);
-          th.start();
-          tasks.add(task);
+          try {
+            ParserProvider parserProvider = oParserProvider.get();
+            ParserTask task = parserProvider.createParser(parserEntity, tableData);
+            task.exceptionProperty().addListener((property, oldValue, newValue) -> {
+              if (newValue != null) {
+                Owlook.registerException(newValue);
+              }
+            });
+            progressDialog.addTask(task);
+            // FIX: Избавиться от new Thread()
+            Thread th = new Thread(task);
+            th.setDaemon(true);
+            th.start();
+            tasks.add(task);
+          } catch (ParserCreateException e) {
+            Owlook.registerException(e);
+          }
         } else {
           OwlookMessage m = new OwlookMessage(MessageLevel.WARNING);
           m.setName("Parser Provider not found");
@@ -131,8 +136,6 @@ public class TableDataDao {
       Owlook.registerException(e);
     }
     tableData.entity().notifyDataUpdateListeners();
-
-
 
     // Task<Void> loadWait = new Task<Void>() {
     // @Override

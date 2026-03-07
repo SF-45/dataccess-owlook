@@ -7,7 +7,7 @@ import space.sadfox.owlook.ui.base.ControllerException;
 
 public interface ParserProvider extends OwlookModuleComponent {
 
-  ParserTask createParser(Owl<ParserEntity> parserEntity, Owl<TableData> tableData);
+  ParserTask createParser(Owl<ParserEntity> parserEntity, Owl<TableData> tableData) throws ParserCreateException;
 
   Controller createController(Owl<ParserEntity> parserEntity, Owl<TableData> tableData)
       throws ControllerException;
